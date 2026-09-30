@@ -1,0 +1,887 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif;
+  background: #101414;
+  color: #f3f5f4;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* =========================
+   サイドバー
+========================= */
+
+.sidebar {
+  width: 290px;
+  min-width: 290px;
+  height: 100%;
+  padding: 28px 20px 20px;
+  background: #171d1d;
+  border-right: 1px solid #303939;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  padding: 0 8px 22px;
+  border-bottom: 1px solid #303939;
+}
+
+.small-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8d9a98;
+  margin-bottom: 6px;
+}
+
+.sidebar-title h1 {
+  margin: 0;
+  font-size: 25px;
+  letter-spacing: 2px;
+}
+
+.progress {
+  padding: 18px 8px 14px;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  color: #aeb9b7;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 7px;
+  border-radius: 10px;
+  background: #303939;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: #55c995;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.question-button {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid #343e3d;
+  border-radius: 10px;
+  background: #202727;
+  color: #e9eeee;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  transition: 0.15s;
+}
+
+.question-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.question-button.selected {
+  border-color: #55c995;
+  background: #20352e;
+}
+
+.question-button.locked {
+  color: #6f7a78;
+  background: #1b2020;
+  cursor: not-allowed;
+}
+
+.question-number {
+  width: 25px;
+  font-weight: 700;
+}
+
+.question-status {
+  margin-left: auto;
+  font-size: 18px;
+}
+
+.sidebar-button,
+.reset-button {
+  width: 100%;
+  min-height: 54px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.sidebar-button {
+  border: 1px solid #52615e;
+  background: #293231;
+  color: #f0f4f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.sidebar-button:active {
+  transform: scale(0.98);
+}
+
+.reset-button {
+  margin-top: auto;
+  border: none;
+  background: transparent;
+  color: #788481;
+  font-size: 12px;
+}
+
+/* =========================
+   メイン
+========================= */
+
+.main {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 50% 35%, #1b2423 0%, #101414 58%);
+}
+
+.content {
+  width: min(850px, 90%);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 50px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.question-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.question-label {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #7f8d89;
+  margin-bottom: 10px;
+}
+
+.question-title {
+  margin: 0;
+  font-size: 38px;
+  letter-spacing: 2px;
+}
+
+.solved-label {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 7px 15px;
+  border-radius: 30px;
+  background: #1d4a39;
+  color: #73e0ae;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.question-card {
+  border: 1px solid #303b39;
+  border-radius: 18px;
+  background: rgba(25, 32, 32, 0.9);
+  padding: 35px 42px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.problem {
+  white-space: pre-wrap;
+  text-align: center;
+  font-size: 23px;
+  line-height: 1.9;
+  margin: 0 0 32px;
+}
+
+.answer-area {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.answer-input {
+  width: 100%;
+  height: 68px;
+  padding: 0 20px;
+  border-radius: 12px;
+  border: 2px solid #495653;
+  outline: none;
+  background: #111717;
+  color: #ffffff;
+  font-size: 22px;
+  text-align: center;
+}
+
+.answer-input:focus {
+  border-color: #55c995;
+}
+
+.answer-input:disabled {
+  opacity: 1;
+  border-color: #55c995;
+  background: #17221f;
+  color: #eafff4;
+  cursor: not-allowed;
+}
+
+.submit-button {
+  width: 100%;
+  height: 66px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 12px;
+  background: #55c995;
+  color: #07120d;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.submit-button:active {
+  transform: scale(0.985);
+}
+
+.submit-button:disabled {
+  background: #31483e;
+  color: #84968e;
+  cursor: not-allowed;
+}
+
+.message {
+  min-height: 30px;
+  margin-top: 17px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.message.correct {
+  color: #6ee5a9;
+}
+
+.message.incorrect {
+  color: #ff9d9d;
+}
+
+.next-button {
+  display: block;
+  width: 100%;
+  height: 62px;
+  margin-top: 16px;
+  border: 1px solid #55c995;
+  border-radius: 12px;
+  background: #20352e;
+  color: #82e7b4;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.next-button:active {
+  transform: scale(0.985);
+}
+
+/* =========================
+   過去の解答
+========================= */
+
+.answers-page {
+  justify-content: flex-start;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 34px;
+  margin: 0 0 30px;
+}
+
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.answer-record {
+  padding: 20px 24px;
+  border: 1px solid #303b39;
+  border-radius: 12px;
+  background: #192020;
+}
+
+.answer-record-title {
+  color: #8f9d99;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.answer-record-value {
+  font-size: 20px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.empty-answers {
+  text-align: center;
+  color: #87918f;
+  padding: 60px 20px;
+  font-size: 18px;
+}
+
+/* =========================
+   クリア画面
+========================= */
+
+.clear-page {
+  text-align: center;
+}
+
+.clear-icon {
+  font-size: 70px;
+  margin-bottom: 15px;
+}
+
+.clear-title {
+  font-size: 48px;
+  margin: 0 0 15px;
+  letter-spacing: 4px;
+}
+
+.clear-text {
+  font-size: 20px;
+  line-height: 1.8;
+  color: #b8c2bf;
+}
+
+/* =========================
+   Toast
+========================= */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 35px;
+  transform: translate(-50%, 20px);
+  padding: 13px 22px;
+  border-radius: 30px;
+  background: #293331;
+  color: #fff;
+  border: 1px solid #465551;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+  z-index: 100;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* =========================
+   iPad
+========================= */
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 245px;
+    min-width: 245px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .content {
+    width: 92%;
+  }
+
+  .question-card {
+    padding: 28px;
+  }
+
+  .question-title {
+    font-size: 32px;
+  }
+
+  .problem {
+    font-size: 20px;
+  }
+}
+
+/* 縦向きでも一応使用可能 */
+@media (orientation: portrait) {
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .content {
+    padding: 30px 0;
+  }
+
+  .question-card {
+    padding: 24px;
+  }
+
+  .problem {
+    font-size: 18px;
+  }
+}
+
+
+/* =========================================================
+   脱出ゲーム演出アニメーション
+========================================================= */
+
+/* ページ切り替え */
+.content.page-enter {
+  animation: pageEnter 0.42s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 問題カード登場 */
+.question-card.card-enter {
+  animation: cardEnter 0.5s cubic-bezier(.16,1,.3,1);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 問題一覧ボタン */
+.question-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.question-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.06);
+  transform: translateX(-110%);
+  transition: transform .25s ease;
+}
+
+.question-button:active::after {
+  transform: translateX(0);
+}
+
+.question-button.just-unlocked {
+  animation: unlockButton 0.8s cubic-bezier(.2,1.5,.4,1);
+}
+
+@keyframes unlockButton {
+  0% {
+    transform: scale(.88);
+    opacity: .35;
+  }
+  45% {
+    transform: scale(1.08);
+  }
+  70% {
+    transform: scale(.96);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ロックアイコンの揺れ */
+.lock-shake {
+  animation: lockShake .65s ease;
+}
+
+@keyframes lockShake {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(-16deg); }
+  30% { transform: rotate(13deg); }
+  45% { transform: rotate(-10deg); }
+  60% { transform: rotate(7deg); }
+  75% { transform: rotate(-3deg); }
+}
+
+/* 解錠演出 */
+.unlock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 10, 9, .78);
+  backdrop-filter: blur(7px);
+  animation: overlayIn .25s ease;
+}
+
+.unlock-overlay.hide {
+  animation: overlayOut .35s ease forwards;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes overlayOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.unlock-box {
+  position: relative;
+  width: min(520px, 82vw);
+  padding: 42px 35px 38px;
+  border: 1px solid #4f8c73;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #17241f, #111817);
+  box-shadow:
+    0 0 0 1px rgba(85,201,149,.08),
+    0 30px 100px rgba(0,0,0,.55),
+    0 0 70px rgba(85,201,149,.13);
+  text-align: center;
+  animation: unlockBox .65s cubic-bezier(.16,1.4,.3,1);
+}
+
+@keyframes unlockBox {
+  0% {
+    opacity: 0;
+    transform: scale(.65) translateY(30px);
+  }
+  60% {
+    transform: scale(1.06) translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.unlock-lock {
+  position: relative;
+  width: 92px;
+  height: 110px;
+  margin: 0 auto 20px;
+}
+
+.lock-body {
+  position: absolute;
+  left: 17px;
+  bottom: 4px;
+  width: 58px;
+  height: 56px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #c7a95d, #80652b);
+  box-shadow: inset 0 3px 5px rgba(255,255,255,.3);
+}
+
+.lock-shackle {
+  position: absolute;
+  left: 29px;
+  top: 5px;
+  width: 34px;
+  height: 55px;
+  border: 8px solid #b8964d;
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+  transform-origin: 50% 100%;
+}
+
+.unlock-lock.open .lock-shackle {
+  animation: shackleOpen .65s cubic-bezier(.16,1.3,.3,1) forwards;
+}
+
+@keyframes shackleOpen {
+  0% {
+    transform: rotate(0) translate(0,0);
+  }
+  55% {
+    transform: rotate(-22deg) translate(-1px,-3px);
+  }
+  100% {
+    transform: rotate(-42deg) translate(-5px,-13px);
+  }
+}
+
+.lock-keyhole {
+  position: absolute;
+  left: 42px;
+  top: 68px;
+  width: 8px;
+  height: 15px;
+  border-radius: 6px;
+  background: #263027;
+}
+
+.unlock-spark {
+  position: absolute;
+  inset: -35px;
+  pointer-events: none;
+}
+
+.unlock-spark span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 18px;
+  border-radius: 5px;
+  background: #8af0bd;
+  opacity: 0;
+}
+
+.unlock-spark span:nth-child(1) { --r: 0deg; transform: rotate(0deg) translateY(-75px); }
+.unlock-spark span:nth-child(2) { --r: 45deg; transform: rotate(45deg) translateY(-75px); }
+.unlock-spark span:nth-child(3) { --r: 90deg; transform: rotate(90deg) translateY(-75px); }
+.unlock-spark span:nth-child(4) { --r: 135deg; transform: rotate(135deg) translateY(-75px); }
+.unlock-spark span:nth-child(5) { --r: 180deg; transform: rotate(180deg) translateY(-75px); }
+.unlock-spark span:nth-child(6) { --r: 225deg; transform: rotate(225deg) translateY(-75px); }
+.unlock-spark span:nth-child(7) { --r: 270deg; transform: rotate(270deg) translateY(-75px); }
+.unlock-spark span:nth-child(8) { --r: 315deg; transform: rotate(315deg) translateY(-75px); }
+
+.unlock-spark.play span {
+  animation: spark .7s ease-out forwards;
+}
+
+@keyframes spark {
+  0% {
+    opacity: 0;
+    transform-origin: 0 75px;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--r, 0deg)) translateY(-105px);
+  }
+}
+
+.unlock-title {
+  margin: 0;
+  color: #86e9b5;
+  font-size: 30px;
+  letter-spacing: 3px;
+}
+
+.unlock-subtitle {
+  margin: 12px 0 0;
+  color: #c3ceca;
+  font-size: 17px;
+}
+
+.unlock-next {
+  margin-top: 25px;
+  color: #778681;
+  font-size: 13px;
+}
+
+/* 正解時のカード発光 */
+.question-card.correct-flash {
+  animation: correctFlash .65s ease;
+}
+
+@keyframes correctFlash {
+  0% {
+    box-shadow: 0 0 0 rgba(85,201,149,0);
+  }
+  35% {
+    box-shadow:
+      0 0 0 2px rgba(85,201,149,.55),
+      0 0 55px rgba(85,201,149,.35);
+  }
+  100% {
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  }
+}
+
+/* 正解マーク */
+.solved-label {
+  animation: solvedPop .45s cubic-bezier(.2,1.5,.4,1);
+}
+
+@keyframes solvedPop {
+  from {
+    opacity: 0;
+    transform: scale(.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 不正解時の揺れ */
+.answer-area.wrong {
+  animation: wrongShake .38s ease;
+}
+
+@keyframes wrongShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+
+/* 解答確定時の入力欄 */
+.answer-input.locked-success {
+  animation: inputLock .5s ease;
+}
+
+@keyframes inputLock {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+/* 次へボタン */
+.next-button {
+  animation: nextAppear .45s .1s both cubic-bezier(.2,1.4,.4,1);
+}
+
+@keyframes nextAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 全問クリア */
+.clear-page {
+  animation: clearIn .8s cubic-bezier(.16,1,.3,1);
+}
+
+@keyframes clearIn {
+  from {
+    opacity: 0;
+    transform: scale(.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.clear-icon {
+  animation: clearUnlock 1s cubic-bezier(.16,1.5,.3,1);
+}
+
+@keyframes clearUnlock {
+  0% { transform: rotate(-20deg) scale(.3); opacity: 0; }
+  50% { transform: rotate(12deg) scale(1.15); opacity: 1; }
+  100% { transform: rotate(0) scale(1); }
+}
+
+/* 小さなパーティクル */
+.clear-page::before,
+.clear-page::after {
+  content: "✦";
+  position: fixed;
+  color: #72e4ac;
+  font-size: 25px;
+  animation: floatParticle 2.5s ease-in-out infinite;
+}
+
+.clear-page::before {
+  left: 25%;
+  top: 28%;
+}
+
+.clear-page::after {
+  right: 25%;
+  top: 40%;
+  animation-delay: .8s;
+}
+
+@keyframes floatParticle {
+  0%,100% {
+    opacity: .2;
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-22px) rotate(25deg);
+  }
+}
+
+/* 動きを減らす設定の端末にも配慮 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>学園祭 脱出ゲーム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- 左サイドバー -->
+    <aside class="sidebar">
+      <div class="sidebar-title">
+        <div class="small-title">SCHOOL FESTIVAL</div>
+        <h1>脱出ゲーム</h1>
+      </div>
+
+      <div class="progress">
+        <div class="progress-text">
+          <span>進行状況</span>
+          <span id="progressText">0 / 9</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progressBar"></div>
+        </div>
+      </div>
+
+      <nav id="questionList" class="question-list">
+        <!-- JavaScriptで生成 -->
+      </nav>
+
+      <button id="answersButton" class="sidebar-button">
+        <span>📖</span>
+        <span>過去の解答</span>
+      </button>
+
+      <button id="resetButton" class="reset-button">
+        進行状況をリセット
+      </button>
+    </aside>
+
+    <!-- メイン画面 -->
+    <main class="main">
+      <div id="content" class="content">
+        <!-- JavaScriptで表示 -->
+      </div>
+    </main>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
