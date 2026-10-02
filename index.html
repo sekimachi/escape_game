@@ -9,6 +9,7 @@
 </head>
 <body>
   <div class="app">
+    <div id="gameTimer" class="game-timer" aria-label="残り時間">12:00</div>
 
     <!-- 左サイドバー -->
     <aside class="sidebar">
@@ -18,24 +19,9 @@
         <div class="school-subtitle">放課後の校舎に残された暗号</div>
       </div>
 
-      <div class="progress">
-        <div class="progress-text">
-          <span>進行状況</span>
-          <span id="progressText">0 / 8</span>
-        </div>
-        <div class="progress-bar">
-          <div id="progressBar"></div>
-        </div>
-      </div>
-
       <nav id="questionList" class="question-list">
         <!-- JavaScriptで生成 -->
       </nav>
-
-      <button id="answersButton" class="sidebar-button">
-        <span>📖</span>
-        <span>過去の解答</span>
-      </button>
 
       <button id="resetButton" class="reset-button">
         進行状況をリセット

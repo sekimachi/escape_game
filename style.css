@@ -34,6 +34,32 @@ button {
   touch-action: manipulation;
 }
 
+.game-timer {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 80;
+  min-width: 108px;
+  padding: 8px 12px;
+  border: 1px solid #495653;
+  border-radius: 10px;
+  background: rgba(17, 23, 23, 0.92);
+  color: #f3f5f4;
+  font-family: "Courier New", monospace;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  transition: color .2s, border-color .2s;
+}
+
+.game-timer.warning {
+  color: #ff5f5f;
+  border-color: #9d3d3d;
+}
+
 .app {
   display: flex;
   width: 100vw;
@@ -75,32 +101,6 @@ button {
   letter-spacing: 2px;
 }
 
-.progress {
-  padding: 18px 8px 14px;
-}
-
-.progress-text {
-  display: flex;
-  justify-content: space-between;
-  color: #aeb9b7;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.progress-bar {
-  height: 7px;
-  border-radius: 10px;
-  background: #303939;
-  overflow: hidden;
-}
-
-#progressBar {
-  height: 100%;
-  width: 0%;
-  background: #55c995;
-  border-radius: 10px;
-  transition: width 0.3s ease;
-}
 
 .question-list {
   display: flex;
@@ -332,52 +332,6 @@ button {
 }
 
 /* =========================
-   過去の解答
-========================= */
-
-.answers-page {
-  justify-content: flex-start;
-}
-
-.page-title {
-  text-align: center;
-  font-size: 34px;
-  margin: 0 0 30px;
-}
-
-.answers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.answer-record {
-  padding: 20px 24px;
-  border: 1px solid #303b39;
-  border-radius: 12px;
-  background: #192020;
-}
-
-.answer-record-title {
-  color: #8f9d99;
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.answer-record-value {
-  font-size: 20px;
-  font-weight: 700;
-  word-break: break-word;
-}
-
-.empty-answers {
-  text-align: center;
-  color: #87918f;
-  padding: 60px 20px;
-  font-size: 18px;
-}
-
-/* =========================
    クリア画面
 ========================= */
 
@@ -425,6 +379,16 @@ button {
 .toast.show {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+@media (max-width: 600px) {
+  .game-timer {
+    top: 10px;
+    right: 12px;
+    min-width: 94px;
+    padding: 7px 9px;
+    font-size: 21px;
+  }
 }
 
 /* =========================
@@ -899,6 +863,32 @@ body {
     #15130f;
 }
 
+.game-timer {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 80;
+  min-width: 108px;
+  padding: 8px 12px;
+  border: 1px solid #495653;
+  border-radius: 10px;
+  background: rgba(17, 23, 23, 0.92);
+  color: #f3f5f4;
+  font-family: "Courier New", monospace;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  transition: color .2s, border-color .2s;
+}
+
+.game-timer.warning {
+  color: #ff5f5f;
+  border-color: #9d3d3d;
+}
+
 .app {
   position: relative;
 }
@@ -953,18 +943,6 @@ body {
   line-height: 1.6;
 }
 
-.progress-text {
-  color: #b4aa95;
-}
-
-.progress-bar {
-  background: #302b23;
-  border: 1px solid #4a4032;
-}
-
-#progressBar {
-  background: linear-gradient(90deg, #9a7943, #c5a765);
-}
 
 .question-list {
   gap: 8px;

@@ -69,6 +69,8 @@ const QUESTIONS = [
 ];
 
 const STORAGE_KEY = "school_festival_escape_game_v1";
+const GAME_TIME_LIMIT_SECONDS = 12 * 60;
+let gameTimerInterval = null;
 
 let state = loadState();
 let currentPage = "question";
@@ -79,7 +81,8 @@ function createInitialState() {
     solved: Array(QUESTIONS.length).fill(false),
     answers: Array(QUESTIONS.length).fill(""),
     questionStartedAt: Array(QUESTIONS.length).fill(null),
-    currentQuestion: 0
+    currentQuestion: 0,
+    gameStartedAt: Date.now()
   };
 }
 
@@ -106,6 +109,10 @@ function loadState() {
 
     while (parsed.answers.length < QUESTIONS.length) {
       parsed.answers.push("");
+    }
+
+    if (typeof parsed.gameStartedAt !== "number" || !Number.isFinite(parsed.gameStartedAt)) {
+      parsed.gameStartedAt = Date.now();
     }
 
     if (!Array.isArray(parsed.questionStartedAt)) {
@@ -158,14 +165,31 @@ function getSolvedCount() {
   return state.solved.filter(Boolean).length;
 }
 
-function updateProgress() {
-  const count = getSolvedCount();
+function formatGameTime(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
 
-  document.getElementById("progressText").textContent =
-    `${count} / ${QUESTIONS.length}`;
+function updateGameTimer() {
+  const timer = document.getElementById("gameTimer");
+  if (!timer) return;
 
-  document.getElementById("progressBar").style.width =
-    `${(count / QUESTIONS.length) * 100}%`;
+  const elapsedSeconds = Math.floor((Date.now() - state.gameStartedAt) / 1000);
+  const remainingSeconds = Math.max(0, GAME_TIME_LIMIT_SECONDS - elapsedSeconds);
+
+  timer.textContent = formatGameTime(remainingSeconds);
+  timer.classList.toggle("warning", remainingSeconds > 0 && remainingSeconds <= 60);
+}
+
+function startGameTimer() {
+  if (gameTimerInterval) {
+    clearInterval(gameTimerInterval);
+  }
+
+  updateGameTimer();
+  gameTimerInterval = setInterval(updateGameTimer, 1000);
 }
 
 function renderSidebar() {
@@ -226,7 +250,6 @@ function renderSidebar() {
     list.appendChild(button);
   });
 
-  updateProgress();
 }
 
 
@@ -585,42 +608,6 @@ function showUnlockAnimation(nextIndex) {
   }, 1500);
 }
 
-function renderAnswers() {
-  const content = document.getElementById("content");
-
-  content.className = "content answers-page";
-
-  const records = QUESTIONS
-    .map((question, index) => {
-      if (!state.solved[index]) {
-        return "";
-      }
-
-      return `
-        <div class="answer-record">
-          <div class="answer-record-title">${escapeHtml(question.title)}</div>
-          <div class="answer-record-value">
-            ${escapeHtml(state.answers[index])}
-          </div>
-        </div>
-      `;
-    })
-    .filter(Boolean)
-    .join("");
-
-  content.innerHTML = `
-    <h2 class="page-title">過去の解答</h2>
-
-    ${
-      records
-        ? `<div class="answers-list">${records}</div>`
-        : `<div class="empty-answers">
-            まだ正解した問題はありません。
-           </div>`
-    }
-  `;
-}
-
 function showClearPage() {
   const content = document.getElementById("content");
 
@@ -634,12 +621,6 @@ function showClearPage() {
       おめでとうございます！
     </p>
   `;
-}
-
-function showAnswersPage() {
-  currentPage = "answers";
-  renderSidebar();
-  renderAnswers();
 }
 
 function escapeHtml(value) {
@@ -670,9 +651,6 @@ function showToast(text) {
   }, 1800);
 }
 
-document.getElementById("answersButton").addEventListener("click", () => {
-  showAnswersPage();
-});
 
 document.getElementById("resetButton").addEventListener("click", () => {
   const confirmed = window.confirm(
@@ -696,6 +674,7 @@ document.getElementById("resetButton").addEventListener("click", () => {
   showToast("リセットしました");
 });
 
+startGameTimer();
 renderSidebar();
 
 if (getSolvedCount() === QUESTIONS.length) {
