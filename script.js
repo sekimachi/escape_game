@@ -14,48 +14,57 @@
 const QUESTIONS = [
   {
     title: "第1問",
-    problem: "ここに第1問の問題文を入れてください。\n\n例：日本の首都は？",
-    answer: "東京"
+    problem: "ここに第1問の問題文を入れてください。\\n\\n例：日本の首都は？",
+    answer: "東京",
+    hint1: "学校の中にあるものに注目してみよう。",
+    hint2: "地図や場所を表す言葉を思い出してみよう。"
   },
   {
     title: "第2問",
     problem: "ここに第2問の問題文を入れてください。",
-    answer: "答え2"
+    answer: "答え2",
+    hint1: "問題文の中で、特に気になる言葉を一つ選んでみよう。",
+    hint2: "その言葉を別の言い方にすると何になるかな？"
   },
   {
     title: "第3問",
     problem: "ここに第3問の問題文を入れてください。",
-    answer: "答え3"
+    answer: "答え3",
+    hint1: "数字や順番に秘密がないか確認してみよう。",
+    hint2: "一つずつ順番に並べ直して考えてみよう。"
   },
   {
     title: "第4問",
     problem: "ここに第4問の問題文を入れてください。",
-    answer: "答え4"
+    answer: "答え4",
+    hint1: "文字の形や読み方に注目してみよう。",
+    hint2: "声に出して読んでみると気づくかもしれない。"
   },
   {
     title: "第5問",
     problem: "ここに第5問の問題文を入れてください。",
-    answer: "答え5"
+    answer: "答え5",
+    hint1: "教室にあるものを思い浮かべてみよう。",
+    hint2: "黒板の近くにあるものから考えてみよう。"
   },
   {
     title: "第6問",
     problem: "ここに第6問の問題文を入れてください。",
-    answer: "答え6"
+    answer: "答え6",
+    hint1: "ここまでに見つけた情報を使えないか考えてみよう。",
+    hint2: "前の問題の答えが、この問題の鍵になっているかも。"
   },
   {
     title: "第7問",
     problem: "ここに第7問の問題文を入れてください。",
-    answer: "答え7"
+    answer: "答え7",
+    hint1: "学校にまつわる言葉を手がかりにしてみよう。",
+    hint2: "「誰が・どこで・いつ」を整理すると見えてくるかも。"
   },
   {
     title: "第8問",
     problem: "ここに第8問の問題文を入れてください。",
     answer: "答え8"
-  },
-  {
-    title: "第9問",
-    problem: "ここに第9問の問題文を入れてください。",
-    answer: "答え9"
   }
 ];
 
@@ -69,6 +78,7 @@ function createInitialState() {
   return {
     solved: Array(QUESTIONS.length).fill(false),
     answers: Array(QUESTIONS.length).fill(""),
+    questionStartedAt: Array(QUESTIONS.length).fill(null),
     currentQuestion: 0
   };
 }
@@ -98,8 +108,17 @@ function loadState() {
       parsed.answers.push("");
     }
 
+    if (!Array.isArray(parsed.questionStartedAt)) {
+      parsed.questionStartedAt = Array(QUESTIONS.length).fill(null);
+    }
+
+    while (parsed.questionStartedAt.length < QUESTIONS.length) {
+      parsed.questionStartedAt.push(null);
+    }
+
     parsed.solved = parsed.solved.slice(0, QUESTIONS.length);
     parsed.answers = parsed.answers.slice(0, QUESTIONS.length);
+    parsed.questionStartedAt = parsed.questionStartedAt.slice(0, QUESTIONS.length);
 
     if (
       typeof parsed.currentQuestion !== "number" ||
@@ -157,6 +176,12 @@ function renderSidebar() {
     const unlocked = getUnlockedQuestion(index);
     const solved = state.solved[index];
 
+    // 第7問・第8問は、解放されるまでサイドバーにも存在させない。
+    // 第7問(index 6)は第6問(index 5)正解後、第8問(index 7)は第7問(index 6)正解後に初めて表示。
+    if (index >= 6 && !unlocked) {
+      return;
+    }
+
     const button = document.createElement("button");
     button.className = "question-button";
 
@@ -204,11 +229,105 @@ function renderSidebar() {
   updateProgress();
 }
 
+
+let hintTimer = null;
+
+function ensureQuestionTimer(index) {
+  if (state.solved[index]) return;
+  if (!state.questionStartedAt[index]) {
+    state.questionStartedAt[index] = Date.now();
+    saveState();
+  }
+}
+
+function clearHintTimer() {
+  if (hintTimer) {
+    clearInterval(hintTimer);
+    hintTimer = null;
+  }
+}
+
+function getHintLevel(index) {
+  if (state.solved[index] || index > 6 || !state.questionStartedAt[index]) {
+    return 0;
+  }
+  const elapsed = Date.now() - state.questionStartedAt[index];
+  if (elapsed >= 90000) return 2;
+  if (elapsed >= 45000) return 1;
+  return 0;
+}
+
+function updateHintDisplay() {
+  const hintArea = document.getElementById("hintArea");
+  if (!hintArea) return;
+
+  const level = getHintLevel(currentQuestion);
+  const question = QUESTIONS[currentQuestion];
+
+  hintArea.innerHTML = "";
+
+  if (level >= 1) {
+    const box = document.createElement("div");
+    box.className = "hint-box hint-one";
+    box.innerHTML = `
+      <div class="hint-heading"><span class="hint-icon">💡</span> ヒント① <span class="hint-time">45秒経過</span></div>
+      <div class="hint-text">${escapeHtml(question.hint1)}</div>
+    `;
+    hintArea.appendChild(box);
+  }
+
+  if (level >= 2) {
+    const box = document.createElement("div");
+    box.className = "hint-box hint-two";
+    box.innerHTML = `
+      <div class="hint-heading"><span class="hint-icon">🔎</span> ヒント② <span class="hint-time">90秒経過</span></div>
+      <div class="hint-text">${escapeHtml(question.hint2)}</div>
+    `;
+    hintArea.appendChild(box);
+  }
+
+  const timer = document.getElementById("hintTimer");
+  if (timer && level === 0) {
+    const elapsed = Math.max(0, Date.now() - state.questionStartedAt[currentQuestion]);
+    const remaining = Math.max(0, 45000 - elapsed);
+    const sec = Math.ceil(remaining / 1000);
+    timer.textContent = `ヒント①まで ${sec}秒`;
+  } else if (timer && level === 1) {
+    const elapsed = Math.max(0, Date.now() - state.questionStartedAt[currentQuestion]);
+    const remaining = Math.max(0, 90000 - elapsed);
+    const sec = Math.ceil(remaining / 1000);
+    timer.textContent = `ヒント②まで ${sec}秒`;
+  } else if (timer) {
+    timer.textContent = "ヒントがすべて開示されています";
+  }
+}
+
+function startHintTimer(index) {
+  clearHintTimer();
+  if (state.solved[index] || index > 6) return;
+
+  ensureQuestionTimer(index);
+  updateHintDisplay();
+
+  hintTimer = setInterval(() => {
+    if (currentPage !== "question" || currentQuestion !== index || state.solved[index]) {
+      clearHintTimer();
+      return;
+    }
+    updateHintDisplay();
+  }, 1000);
+}
+
 function renderQuestion() {
   const content = document.getElementById("content");
 
   const question = QUESTIONS[currentQuestion];
   const solved = state.solved[currentQuestion];
+
+  if (!solved) {
+    ensureQuestionTimer(currentQuestion);
+  }
+  clearHintTimer();
 
   content.className = "content";
 
@@ -229,6 +348,18 @@ function renderQuestion() {
 
     <section class="question-card">
       <p class="problem">${escapeHtml(question.problem)}</p>
+
+      ${
+        !solved && currentQuestion <= 6
+          ? `<div class="hint-panel">
+              <div class="hint-status-row">
+                <span class="hint-status-label">捜査メモ / HINT</span>
+                <span id="hintTimer" class="hint-timer">ヒント①まで 45秒</span>
+              </div>
+              <div id="hintArea" class="hint-area"></div>
+            </div>`
+          : ""
+      }
 
       <div class="answer-area">
         <input
@@ -274,6 +405,9 @@ function renderQuestion() {
 
   if (!solved) {
     setupAnswerInput();
+    if (currentQuestion <= 6) {
+      startHintTimer(currentQuestion);
+    }
   } else {
     const nextButton = document.getElementById("nextButton");
 
@@ -340,6 +474,8 @@ function checkAnswer() {
     state.solved[currentQuestion] = true;
     state.answers[currentQuestion] = userAnswer;
 
+    clearHintTimer();
+    state.questionStartedAt[currentQuestion] = null;
     saveState();
 
     input.disabled = true;
@@ -547,6 +683,7 @@ document.getElementById("resetButton").addEventListener("click", () => {
     return;
   }
 
+  clearHintTimer();
   state = createInitialState();
   currentQuestion = 0;
   currentPage = "question";

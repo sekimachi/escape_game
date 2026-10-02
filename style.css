@@ -20,7 +20,7 @@ body {
     "Yu Gothic",
     "Meiryo",
     sans-serif;
-  background: #101414;
+  background: #11100e;
   color: #f3f5f4;
 }
 
@@ -884,4 +884,348 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+
+/* =========================================================
+   SCHOOL MYSTERY THEME — 旧校舎・放課後
+========================================================= */
+body {
+  color: #efe8d8;
+  background:
+    radial-gradient(circle at 76% 22%, rgba(130, 105, 55, .12), transparent 24%),
+    linear-gradient(rgba(20,18,15,.78), rgba(14,13,12,.92)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 5px),
+    #15130f;
+}
+
+.app {
+  position: relative;
+}
+
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: .16;
+  background:
+    radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 80%, #fff 0 1px, transparent 1.5px);
+  background-size: 170px 190px, 230px 210px;
+  mix-blend-mode: screen;
+}
+
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  padding: 26px 20px 20px;
+  background:
+    linear-gradient(180deg, rgba(31,29,24,.98), rgba(20,19,16,.98)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 2px, transparent 2px 7px);
+  border-right: 1px solid #4b4234;
+  box-shadow: 12px 0 35px rgba(0,0,0,.24);
+}
+
+.sidebar-title {
+  padding: 0 8px 20px;
+  border-bottom: 1px solid #4b4234;
+}
+
+.small-title {
+  color: #a99a78;
+  letter-spacing: 2.4px;
+}
+
+.sidebar-title h1 {
+  color: #f1e5c9;
+  font-family: Georgia, "Yu Mincho", serif;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.7);
+}
+
+.school-subtitle {
+  margin-top: 8px;
+  color: #817965;
+  font-size: 11px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+
+.progress-text {
+  color: #b4aa95;
+}
+
+.progress-bar {
+  background: #302b23;
+  border: 1px solid #4a4032;
+}
+
+#progressBar {
+  background: linear-gradient(90deg, #9a7943, #c5a765);
+}
+
+.question-list {
+  gap: 8px;
+}
+
+.question-button {
+  border-color: #474034;
+  border-radius: 5px;
+  background:
+    linear-gradient(135deg, rgba(48,44,36,.96), rgba(32,30,26,.96));
+  color: #ded5c4;
+  box-shadow: inset 0 1px rgba(255,255,255,.04);
+}
+
+.question-button.selected {
+  border-color: #b18b4e;
+  background: linear-gradient(135deg, #443a2b, #2d2922);
+  box-shadow: inset 3px 0 #b18b4e, 0 0 18px rgba(177,139,78,.10);
+}
+
+.question-button.locked {
+  color: #6c665a;
+  background: #211f1b;
+}
+
+.question-status {
+  filter: grayscale(.2);
+}
+
+.sidebar-button {
+  border-color: #665842;
+  border-radius: 5px;
+  background: #302b23;
+  color: #e8deca;
+}
+
+.reset-button {
+  color: #777061;
+}
+
+.main {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 32%, rgba(83,69,47,.18), transparent 52%),
+    linear-gradient(90deg, rgba(0,0,0,.22), transparent 14%, transparent 86%, rgba(0,0,0,.22)),
+    #14120f;
+}
+
+.main::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, #5c513e 0 80px, #40382d 80px 160px);
+  opacity: .55;
+  pointer-events: none;
+}
+
+.content {
+  width: min(900px, 90%);
+  padding: 55px 0;
+}
+
+.question-header {
+  margin-bottom: 28px;
+}
+
+.question-label {
+  color: #a28e68;
+  letter-spacing: 4px;
+  font-family: Georgia, serif;
+}
+
+.question-title {
+  color: #f1e7d2;
+  font-family: Georgia, "Yu Mincho", serif;
+  text-shadow: 0 3px 25px rgba(0,0,0,.7);
+}
+
+.question-card {
+  position: relative;
+  border: 1px solid #544936;
+  border-radius: 4px;
+  background:
+    linear-gradient(rgba(50,45,36,.94), rgba(30,28,24,.97)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px);
+  box-shadow: 0 28px 70px rgba(0,0,0,.42), inset 0 1px rgba(255,255,255,.05);
+}
+
+.question-card::before,
+.question-card::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #7d2d27;
+  box-shadow: 0 2px 4px rgba(0,0,0,.5);
+}
+.question-card::before { top: 13px; left: 15px; }
+.question-card::after { top: 13px; right: 15px; background: #66552f; }
+
+.problem {
+  color: #eee5d4;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  text-shadow: 0 1px 1px #000;
+}
+
+.answer-input {
+  border-color: #665842;
+  border-radius: 4px;
+  background: #191815;
+  color: #f4ead7;
+}
+
+.answer-input:focus {
+  border-color: #c2a36b;
+  box-shadow: 0 0 0 3px rgba(194,163,107,.10);
+}
+
+.answer-input:disabled {
+  border-color: #8d7445;
+  background: #24211b;
+  color: #e9dcbf;
+}
+
+.submit-button {
+  border-radius: 4px;
+  background: linear-gradient(135deg, #a9874f, #765b31);
+  color: #17130d;
+  box-shadow: 0 5px 15px rgba(0,0,0,.25);
+}
+
+.submit-button:disabled {
+  background: #48402f;
+  color: #94886f;
+}
+
+.message.correct { color: #d6c184; }
+.message.incorrect { color: #d98c83; }
+
+.next-button {
+  border-color: #9d7d4a;
+  border-radius: 4px;
+  background: #332c21;
+  color: #d8bf8b;
+}
+
+.solved-label {
+  border-radius: 3px;
+  background: #403725;
+  color: #d5bb82;
+}
+
+.hint-panel {
+  margin: 0 auto 28px;
+  max-width: 700px;
+  padding: 15px 17px;
+  border: 1px solid #65563e;
+  border-left: 3px solid #9c7d4a;
+  border-radius: 3px;
+  background: rgba(22,20,16,.82);
+  box-shadow: inset 0 0 30px rgba(0,0,0,.22);
+}
+
+.hint-status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  color: #9e917b;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+
+.hint-status-label {
+  font-weight: 800;
+  color: #b9a77f;
+}
+
+.hint-timer {
+  color: #777064;
+  font-variant-numeric: tabular-nums;
+}
+
+.hint-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.hint-box {
+  padding: 12px 14px;
+  border: 1px dashed #716043;
+  background: rgba(69,57,38,.22);
+  animation: hintReveal .55s cubic-bezier(.2,.9,.2,1);
+}
+
+.hint-box.hint-two {
+  border-color: #86674b;
+  background: rgba(73,48,38,.24);
+}
+
+.hint-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #d1b77f;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.hint-two .hint-heading {
+  color: #d5a58c;
+}
+
+.hint-time {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 500;
+  color: #817764;
+}
+
+.hint-text {
+  margin-top: 7px;
+  color: #d5cbb8;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+@keyframes hintReveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.unlock-overlay {
+  background: rgba(9,8,7,.86);
+}
+
+.unlock-box {
+  border-color: #8c7146;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #30291f, #171511);
+  box-shadow: 0 30px 100px rgba(0,0,0,.75), 0 0 70px rgba(161,126,68,.10);
+}
+
+.unlock-title {
+  color: #d2b579;
+  font-family: Georgia, serif;
+  letter-spacing: 3px;
+}
+
+.unlock-subtitle,
+.unlock-next {
+  color: #b8aa91;
+}
+
+.clear-page .clear-title {
+  color: #e3cf9f;
+  font-family: Georgia, "Yu Mincho", serif;
 }
