@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>旧校舎の謎 — ゲーム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <div id="gameTimer" class="game-timer" aria-label="残り時間">12:00</div>
+    <aside class="sidebar">
+      <div class="sidebar-title">
+        <div class="small-title">ARCHIVE 07 / SCHOOL MYSTERY</div>
+        <h1>旧校舎の謎</h1>
+        <div class="school-subtitle">放課後の校舎に残された暗号</div>
+      </div>
+      <div class="progress">
+        <div class="progress-text">
+          <span>進行状況</span>
+          <span id="progressText">0 / 9</span>
+        </div>
+        <div class="progress-bar"><div id="progressBar"></div></div>
+      </div>
+      <nav id="questionList" class="question-list"></nav>
+      <button id="answersButton" class="sidebar-button">
+        <span>📖</span><span>過去の解答</span>
+      </button>
+      <button id="resetButton" class="reset-button">進行状況をリセット</button>
+    </aside>
+    <main class="main"><div id="content" class="content"></div></main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>

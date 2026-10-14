@@ -4,41 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>旧校舎の謎 — 学園ミステリー脱出ゲーム</title>
-  <link rel="stylesheet" href="style.css">
+  <title>旧校舎の謎 — スタート</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body {
+      min-height: 100svh; display: grid; place-items: center; padding: 24px;
+      background: radial-gradient(ellipse at center, rgba(255,253,235,.96) 0%, rgba(237,242,220,.94) 52%, rgba(190,207,177,.98) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      overflow: hidden;
+    }
+    body::before, body::after { content: ""; position: fixed; pointer-events: none; border: 1px solid rgba(48,74,57,.18); border-radius: 50%; }
+    body::before { width: min(88vw, 760px); aspect-ratio: 1; }
+    body::after { width: min(70vw, 600px); aspect-ratio: 1; }
+    .start-button {
+      position: relative; z-index: 1; width: min(82vw, 340px); min-height: 86px;
+      padding: 20px 28px; border: 3px solid #304a39; border-radius: 16px;
+      background: #e6dca9; color: #304a39; font-size: clamp(22px, 4vw, 30px);
+      font-weight: 800; letter-spacing: .08em; cursor: pointer;
+      box-shadow: 0 8px 0 #9eaa83, 0 16px 32px rgba(37,57,43,.16);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .start-button:hover { background: #f4eac0; transform: translateY(-3px); box-shadow: 0 11px 0 #9eaa83, 0 20px 36px rgba(37,57,43,.18); }
+    .start-button:active { transform: translateY(5px); box-shadow: 0 3px 0 #9eaa83; }
+    .start-button:focus-visible { outline: 4px solid #527aab; outline-offset: 6px; }
+  </style>
 </head>
 <body>
-  <div class="app">
-    <div id="gameTimer" class="game-timer" aria-label="残り時間">12:00</div>
-
-    <!-- 左サイドバー -->
-    <aside class="sidebar">
-      <div class="sidebar-title">
-        <div class="small-title">ARCHIVE 07 / SCHOOL MYSTERY</div>
-        <h1>旧校舎の謎</h1>
-        <div class="school-subtitle">放課後の校舎に残された暗号</div>
-      </div>
-
-      <nav id="questionList" class="question-list">
-        <!-- JavaScriptで生成 -->
-      </nav>
-
-      <button id="resetButton" class="reset-button">
-        進行状況をリセット
-      </button>
-    </aside>
-
-    <!-- メイン画面 -->
-    <main class="main">
-      <div id="content" class="content">
-        <!-- JavaScriptで表示 -->
-      </div>
-    </main>
-
-  </div>
-
-  <div id="toast" class="toast"></div>
-
-  <script src="script.js"></script>
+  <button class="start-button" type="button" onclick="location.href='game.html'">ゲームスタート　→</button>
 </body>
 </html>

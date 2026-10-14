@@ -14,75 +14,64 @@
 const QUESTIONS = [
   {
     title: "第1問",
-    problem: "ここに第1問の問題文を入れてください。\\n\\n例：日本の首都は？",
-    answer: "東京",
-    hint1: "学校の中にあるものに注目してみよう。",
-    hint2: "地図や場所を表す言葉を思い出してみよう。"
+    problem: "ここに第1問の問題文を入れてください。\n\n例：日本の首都は？",
+    answer: "東京"
   },
   {
     title: "第2問",
     problem: "ここに第2問の問題文を入れてください。",
-    answer: "答え2",
-    hint1: "問題文の中で、特に気になる言葉を一つ選んでみよう。",
-    hint2: "その言葉を別の言い方にすると何になるかな？"
+    answer: "答え2"
   },
   {
     title: "第3問",
     problem: "ここに第3問の問題文を入れてください。",
-    answer: "答え3",
-    hint1: "数字や順番に秘密がないか確認してみよう。",
-    hint2: "一つずつ順番に並べ直して考えてみよう。"
+    answer: "答え3"
   },
   {
     title: "第4問",
     problem: "ここに第4問の問題文を入れてください。",
-    answer: "答え4",
-    hint1: "文字の形や読み方に注目してみよう。",
-    hint2: "声に出して読んでみると気づくかもしれない。"
+    answer: "答え4"
   },
   {
     title: "第5問",
     problem: "ここに第5問の問題文を入れてください。",
-    answer: "答え5",
-    hint1: "教室にあるものを思い浮かべてみよう。",
-    hint2: "黒板の近くにあるものから考えてみよう。"
+    answer: "答え5"
   },
   {
     title: "第6問",
     problem: "ここに第6問の問題文を入れてください。",
-    answer: "答え6",
-    hint1: "ここまでに見つけた情報を使えないか考えてみよう。",
-    hint2: "前の問題の答えが、この問題の鍵になっているかも。"
+    answer: "答え6"
   },
   {
     title: "第7問",
     problem: "ここに第7問の問題文を入れてください。",
-    answer: "答え7",
-    hint1: "学校にまつわる言葉を手がかりにしてみよう。",
-    hint2: "「誰が・どこで・いつ」を整理すると見えてくるかも。"
+    answer: "答え7"
   },
   {
     title: "第8問",
     problem: "ここに第8問の問題文を入れてください。",
     answer: "答え8"
+  },
+  {
+    title: "第9問",
+    problem: "ここに第9問の問題文を入れてください。",
+    answer: "答え9"
   }
 ];
 
 const STORAGE_KEY = "school_festival_escape_game_v1";
-const GAME_TIME_LIMIT_SECONDS = 12 * 60;
-let gameTimerInterval = null;
 
 let state = loadState();
-let currentPage = "question";
+let currentPage = "start";
+let gameTimerInterval = null;
+let remainingSeconds = 12 * 60;
 let currentQuestion = state.currentQuestion || 0;
 
 function createInitialState() {
   return {
     solved: Array(QUESTIONS.length).fill(false),
     answers: Array(QUESTIONS.length).fill(""),
-    questionStartedAt: Array(QUESTIONS.length).fill(null),
-    currentQuestion: 0,
-    gameStartedAt: Date.now()
+    currentQuestion: 0
   };
 }
 
@@ -111,21 +100,8 @@ function loadState() {
       parsed.answers.push("");
     }
 
-    if (typeof parsed.gameStartedAt !== "number" || !Number.isFinite(parsed.gameStartedAt)) {
-      parsed.gameStartedAt = Date.now();
-    }
-
-    if (!Array.isArray(parsed.questionStartedAt)) {
-      parsed.questionStartedAt = Array(QUESTIONS.length).fill(null);
-    }
-
-    while (parsed.questionStartedAt.length < QUESTIONS.length) {
-      parsed.questionStartedAt.push(null);
-    }
-
     parsed.solved = parsed.solved.slice(0, QUESTIONS.length);
     parsed.answers = parsed.answers.slice(0, QUESTIONS.length);
-    parsed.questionStartedAt = parsed.questionStartedAt.slice(0, QUESTIONS.length);
 
     if (
       typeof parsed.currentQuestion !== "number" ||
@@ -165,31 +141,14 @@ function getSolvedCount() {
   return state.solved.filter(Boolean).length;
 }
 
-function formatGameTime(totalSeconds) {
-  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-  const minutes = Math.floor(safeSeconds / 60);
-  const seconds = safeSeconds % 60;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
+function updateProgress() {
+  const count = getSolvedCount();
 
-function updateGameTimer() {
-  const timer = document.getElementById("gameTimer");
-  if (!timer) return;
+  document.getElementById("progressText").textContent =
+    `${count} / ${QUESTIONS.length}`;
 
-  const elapsedSeconds = Math.floor((Date.now() - state.gameStartedAt) / 1000);
-  const remainingSeconds = Math.max(0, GAME_TIME_LIMIT_SECONDS - elapsedSeconds);
-
-  timer.textContent = formatGameTime(remainingSeconds);
-  timer.classList.toggle("warning", remainingSeconds > 0 && remainingSeconds <= 60);
-}
-
-function startGameTimer() {
-  if (gameTimerInterval) {
-    clearInterval(gameTimerInterval);
-  }
-
-  updateGameTimer();
-  gameTimerInterval = setInterval(updateGameTimer, 1000);
+  document.getElementById("progressBar").style.width =
+    `${(count / QUESTIONS.length) * 100}%`;
 }
 
 function renderSidebar() {
@@ -199,12 +158,6 @@ function renderSidebar() {
   QUESTIONS.forEach((question, index) => {
     const unlocked = getUnlockedQuestion(index);
     const solved = state.solved[index];
-
-    // 第7問・第8問は、解放されるまでサイドバーにも存在させない。
-    // 第7問(index 6)は第6問(index 5)正解後、第8問(index 7)は第7問(index 6)正解後に初めて表示。
-    if (index >= 6 && !unlocked) {
-      return;
-    }
 
     const button = document.createElement("button");
     button.className = "question-button";
@@ -235,7 +188,7 @@ function renderSidebar() {
       <span class="question-status">${status}</span>
     `;
 
-    if (unlocked) {
+    if (unlocked && currentPage !== "start") {
       button.addEventListener("click", () => {
         currentQuestion = index;
         currentPage = "question";
@@ -250,95 +203,7 @@ function renderSidebar() {
     list.appendChild(button);
   });
 
-}
-
-
-let hintTimer = null;
-
-function ensureQuestionTimer(index) {
-  if (state.solved[index]) return;
-  if (!state.questionStartedAt[index]) {
-    state.questionStartedAt[index] = Date.now();
-    saveState();
-  }
-}
-
-function clearHintTimer() {
-  if (hintTimer) {
-    clearInterval(hintTimer);
-    hintTimer = null;
-  }
-}
-
-function getHintLevel(index) {
-  if (state.solved[index] || index > 6 || !state.questionStartedAt[index]) {
-    return 0;
-  }
-  const elapsed = Date.now() - state.questionStartedAt[index];
-  if (elapsed >= 90000) return 2;
-  if (elapsed >= 45000) return 1;
-  return 0;
-}
-
-function updateHintDisplay() {
-  const hintArea = document.getElementById("hintArea");
-  if (!hintArea) return;
-
-  const level = getHintLevel(currentQuestion);
-  const question = QUESTIONS[currentQuestion];
-
-  hintArea.innerHTML = "";
-
-  if (level >= 1) {
-    const box = document.createElement("div");
-    box.className = "hint-box hint-one";
-    box.innerHTML = `
-      <div class="hint-heading"><span class="hint-icon">💡</span> ヒント① <span class="hint-time">45秒経過</span></div>
-      <div class="hint-text">${escapeHtml(question.hint1)}</div>
-    `;
-    hintArea.appendChild(box);
-  }
-
-  if (level >= 2) {
-    const box = document.createElement("div");
-    box.className = "hint-box hint-two";
-    box.innerHTML = `
-      <div class="hint-heading"><span class="hint-icon">🔎</span> ヒント② <span class="hint-time">90秒経過</span></div>
-      <div class="hint-text">${escapeHtml(question.hint2)}</div>
-    `;
-    hintArea.appendChild(box);
-  }
-
-  const timer = document.getElementById("hintTimer");
-  if (timer && level === 0) {
-    const elapsed = Math.max(0, Date.now() - state.questionStartedAt[currentQuestion]);
-    const remaining = Math.max(0, 45000 - elapsed);
-    const sec = Math.ceil(remaining / 1000);
-    timer.textContent = `ヒント①まで ${sec}秒`;
-  } else if (timer && level === 1) {
-    const elapsed = Math.max(0, Date.now() - state.questionStartedAt[currentQuestion]);
-    const remaining = Math.max(0, 90000 - elapsed);
-    const sec = Math.ceil(remaining / 1000);
-    timer.textContent = `ヒント②まで ${sec}秒`;
-  } else if (timer) {
-    timer.textContent = "ヒントがすべて開示されています";
-  }
-}
-
-function startHintTimer(index) {
-  clearHintTimer();
-  if (state.solved[index] || index > 6) return;
-
-  ensureQuestionTimer(index);
-  updateHintDisplay();
-
-  hintTimer = setInterval(() => {
-    if (currentPage !== "question" || currentQuestion !== index || state.solved[index]) {
-      clearHintTimer();
-      return;
-    }
-    updateHintDisplay();
-  }, 1000);
+  updateProgress();
 }
 
 function renderQuestion() {
@@ -346,11 +211,6 @@ function renderQuestion() {
 
   const question = QUESTIONS[currentQuestion];
   const solved = state.solved[currentQuestion];
-
-  if (!solved) {
-    ensureQuestionTimer(currentQuestion);
-  }
-  clearHintTimer();
 
   content.className = "content";
 
@@ -371,18 +231,6 @@ function renderQuestion() {
 
     <section class="question-card">
       <p class="problem">${escapeHtml(question.problem)}</p>
-
-      ${
-        !solved && currentQuestion <= 6
-          ? `<div class="hint-panel">
-              <div class="hint-status-row">
-                <span class="hint-status-label">捜査メモ / HINT</span>
-                <span id="hintTimer" class="hint-timer">ヒント①まで 45秒</span>
-              </div>
-              <div id="hintArea" class="hint-area"></div>
-            </div>`
-          : ""
-      }
 
       <div class="answer-area">
         <input
@@ -428,9 +276,6 @@ function renderQuestion() {
 
   if (!solved) {
     setupAnswerInput();
-    if (currentQuestion <= 6) {
-      startHintTimer(currentQuestion);
-    }
   } else {
     const nextButton = document.getElementById("nextButton");
 
@@ -497,8 +342,6 @@ function checkAnswer() {
     state.solved[currentQuestion] = true;
     state.answers[currentQuestion] = userAnswer;
 
-    clearHintTimer();
-    state.questionStartedAt[currentQuestion] = null;
     saveState();
 
     input.disabled = true;
@@ -608,6 +451,42 @@ function showUnlockAnimation(nextIndex) {
   }, 1500);
 }
 
+function renderAnswers() {
+  const content = document.getElementById("content");
+
+  content.className = "content answers-page";
+
+  const records = QUESTIONS
+    .map((question, index) => {
+      if (!state.solved[index]) {
+        return "";
+      }
+
+      return `
+        <div class="answer-record">
+          <div class="answer-record-title">${escapeHtml(question.title)}</div>
+          <div class="answer-record-value">
+            ${escapeHtml(state.answers[index])}
+          </div>
+        </div>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+
+  content.innerHTML = `
+    <h2 class="page-title">過去の解答</h2>
+
+    ${
+      records
+        ? `<div class="answers-list">${records}</div>`
+        : `<div class="empty-answers">
+            まだ正解した問題はありません。
+           </div>`
+    }
+  `;
+}
+
 function showClearPage() {
   const content = document.getElementById("content");
 
@@ -621,6 +500,12 @@ function showClearPage() {
       おめでとうございます！
     </p>
   `;
+}
+
+function showAnswersPage() {
+  currentPage = "answers";
+  renderSidebar();
+  renderAnswers();
 }
 
 function escapeHtml(value) {
@@ -651,34 +536,61 @@ function showToast(text) {
   }, 1800);
 }
 
+function updateGameTimer() {
+  const timer = document.getElementById("gameTimer");
+  if (!timer) return;
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  timer.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  timer.classList.toggle("timer-warning", remainingSeconds <= 60);
+}
+
+function stopGameTimer() {
+  if (gameTimerInterval !== null) {
+    clearInterval(gameTimerInterval);
+    gameTimerInterval = null;
+  }
+}
+
+function startGameTimer() {
+  stopGameTimer();
+  updateGameTimer();
+  gameTimerInterval = setInterval(() => {
+    if (currentPage === "start") {
+      stopGameTimer();
+      return;
+    }
+    if (remainingSeconds > 0) {
+      remainingSeconds -= 1;
+      updateGameTimer();
+    } else {
+      stopGameTimer();
+      showToast("制限時間終了！");
+    }
+  }, 1000);
+}
+
+
+document.getElementById("answersButton").addEventListener("click", () => {
+  showAnswersPage();
+});
 
 document.getElementById("resetButton").addEventListener("click", () => {
   const confirmed = window.confirm(
-    "進行状況と解答をすべて消去します。\n本当にリセットしますか？"
+    "進行状況と解答をすべて消去して、スタート画面に戻しますか？"
   );
+  if (!confirmed) return;
 
-  if (!confirmed) {
-    return;
-  }
-
-  clearHintTimer();
+  stopGameTimer();
   state = createInitialState();
   currentQuestion = 0;
-  currentPage = "question";
-
+  remainingSeconds = 12 * 60;
   saveState();
-
-  renderSidebar();
-  renderQuestion();
-
-  showToast("リセットしました");
+  window.location.href = "index.html";
 });
 
-startGameTimer();
+currentPage = "question";
 renderSidebar();
-
-if (getSolvedCount() === QUESTIONS.length) {
-  showClearPage();
-} else {
-  renderQuestion();
-}
+updateGameTimer();
+renderQuestion();
+startGameTimer();
