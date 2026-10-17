@@ -1039,3 +1039,91 @@ button {
   letter-spacing: 1px;
   line-height: 1.4;
 }
+
+/* ===== タイマーを大きく ===== */
+.game-timer {
+  top: 14px;
+  right: 18px;
+  padding: 12px 24px;
+  border-width: 3px;
+  border-radius: 16px;
+  font-size: 36px;
+  letter-spacing: 2px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 760px) {
+  .game-timer {
+    top: 8px;
+    right: 8px;
+    padding: 8px 14px;
+    font-size: 26px;
+  }
+}
+
+/* ===== ヒント ===== */
+.hint-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 620px;
+  margin: 28px auto 0;
+}
+
+.hint-box {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #343e3d;
+  background: #1b2222;
+}
+
+.hint-box.locked {
+  color: #7d8a87;
+  border-style: dashed;
+}
+
+.hint-box.open {
+  border-color: #c7a95d;
+  background: #2a281c;
+}
+
+.hint-label {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hint-box.open .hint-label {
+  color: #e6c872;
+}
+
+.hint-text {
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.hint-box.open .hint-text {
+  color: #f3ecd0;
+}
+
+.hint-box.hint-new {
+  animation: hintReveal 0.7s cubic-bezier(.2, 1.4, .4, 1);
+}
+
+@keyframes hintReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    box-shadow: 0 0 0 rgba(230, 200, 114, 0);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(230, 200, 114, 0.45);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 rgba(230, 200, 114, 0);
+  }
+}
