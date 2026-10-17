@@ -61,9 +61,6 @@ const QUESTIONS = [
 
 const STORAGE_KEY = "school_festival_escape_game_v1";
 
-// この番号以降の問題(0始まり。7 = 第8問)は、前の問題を解くまで一覧に表示しない
-const HIDDEN_UNTIL_UNLOCKED_FROM = 7;
-
 let state = loadState();
 let currentPage = "start";
 let gameTimerInterval = null;
@@ -140,6 +137,20 @@ function getUnlockedQuestion(index) {
   return state.solved[index - 1] === true;
 }
 
+function getSolvedCount() {
+  return state.solved.filter(Boolean).length;
+}
+
+function updateProgress() {
+  const count = getSolvedCount();
+
+  document.getElementById("progressText").textContent =
+    `${count} / ${QUESTIONS.length}`;
+
+  document.getElementById("progressBar").style.width =
+    `${(count / QUESTIONS.length) * 100}%`;
+}
+
 function renderSidebar() {
   const list = document.getElementById("questionList");
   list.innerHTML = "";
@@ -148,14 +159,8 @@ function renderSidebar() {
     const unlocked = getUnlockedQuestion(index);
     const solved = state.solved[index];
 
-    // 第8問・第9問は、前の問題を解くまで一覧に表示しない
-    if (index >= HIDDEN_UNTIL_UNLOCKED_FROM && !unlocked) {
-      return;
-    }
-
     const button = document.createElement("button");
     button.className = "question-button";
-    button.dataset.index = index;
 
     if (!unlocked) {
       button.classList.add("locked");
@@ -197,6 +202,8 @@ function renderSidebar() {
 
     list.appendChild(button);
   });
+
+  updateProgress();
 }
 
 function renderQuestion() {
@@ -418,10 +425,8 @@ function showUnlockAnimation(nextIndex) {
   // サイドバーの次問題をアニメーション
   renderSidebar();
 
-  // 非表示のボタンがあっても番号がずれないよう data-index で探す
-  const nextButton = document.querySelector(
-    `.question-button[data-index="${nextIndex}"]`
-  );
+  const buttons = document.querySelectorAll(".question-button");
+  const nextButton = buttons[nextIndex];
 
   if (nextButton) {
     nextButton.classList.add("just-unlocked");
