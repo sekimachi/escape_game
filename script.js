@@ -235,6 +235,9 @@ function renderSidebar() {
 
     if (solved) {
       status = "✓";
+    } else if (index < FREE_COUNT) {
+      // 第1〜第6問は最初から自由に選べるので、マークなし
+      status = "";
     } else if (unlocked) {
       status = "🔓";
     }
