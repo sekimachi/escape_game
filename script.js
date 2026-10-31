@@ -686,14 +686,14 @@ function showFinalResult() {
   content.innerHTML = ok
     ? `
       <div class="clear-icon">🔓</div>
-      <h2 class="clear-title">脱出成功</h2>
+      <h2 class="clear-title">正解</h2>
       <p class="clear-text">
         君たちは正しく七不思議の真実に<br>辿り着くことができたようだ...
       </p>
     `
     : `
       <div class="clear-icon">🔒</div>
-      <h2 class="clear-title fail">脱出失敗</h2>
+      <h2 class="clear-title fail">不正解</h2>
       <p class="clear-text">
         君たちは七不思議の真実に<br>辿り着くことができなかったみたいだ...
       </p>
