@@ -1040,3 +1040,26 @@ button {
   line-height: 1.4;
 }
 
+/* 最終問題の注意書き */
+.final-warning {
+  max-width: 620px;
+  margin: -12px auto 26px;
+  padding: 12px 18px;
+  border: 1px solid #c98b6e;
+  border-radius: 10px;
+  background: rgba(166, 76, 48, .15);
+  color: #ffc9b3;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.final-warning strong {
+  color: #ffd9c8;
+  text-decoration: underline;
+}
+
+/* 失敗画面 */
+.clear-title.fail {
+  color: #d98f8f;
+}

@@ -82,6 +82,9 @@ const HINT_INTERVAL = 45;
 // 自由な順番で解ける問題の数（第1〜第6問）
 const FREE_COUNT = 6;
 
+// 最後の問題は1回しか解答できない
+const LAST_INDEX = QUESTIONS.length - 1;
+
 const STORAGE_KEY = "school_festival_escape_game_v1";
 
 let state = loadState();
@@ -95,7 +98,8 @@ function createInitialState() {
     solved: Array(QUESTIONS.length).fill(false),
     answers: Array(QUESTIONS.length).fill(""),
     hintSeconds: Array(QUESTIONS.length).fill(0),
-    currentQuestion: 0
+    currentQuestion: 0,
+    finalResult: null   // null: 未解答 / "correct" / "wrong"
   };
 }
 
@@ -145,6 +149,10 @@ function loadState() {
       parsed.currentQuestion >= QUESTIONS.length
     ) {
       parsed.currentQuestion = 0;
+    }
+
+    if (parsed.finalResult !== "correct" && parsed.finalResult !== "wrong") {
+      parsed.finalResult = null;
     }
 
     return parsed;
@@ -263,6 +271,12 @@ function renderQuestion() {
   const question = QUESTIONS[currentQuestion];
   const solved = state.solved[currentQuestion];
 
+  // 最終問題を解答済みなら、結果画面を表示
+  if (currentQuestion === LAST_INDEX && state.finalResult) {
+    showFinalResult();
+    return;
+  }
+
   content.className = "content";
 
   content.innerHTML = `
@@ -282,6 +296,12 @@ function renderQuestion() {
 
     <section class="question-card">
       <p class="problem">${escapeHtml(question.problem)}</p>
+
+      ${
+        currentQuestion === LAST_INDEX
+          ? `<div class="final-warning">⚠ この問題は<strong>1回しか解答できません</strong>。慎重に答えてください。</div>`
+          : ""
+      }
 
       <div class="answer-area">
         <input
@@ -470,6 +490,29 @@ function checkAnswer() {
     return;
   }
 
+  // 最終問題は1回きり。正解・不正解どちらでも確定する
+  if (currentQuestion === LAST_INDEX) {
+    const ok =
+      normalizeAnswer(userAnswer) ===
+      normalizeAnswer(QUESTIONS[LAST_INDEX].answer);
+
+    const confirmed = window.confirm(
+      "この問題は1回しか解答できません。\nこの答えで確定しますか?"
+    );
+    if (!confirmed) return;
+
+    state.answers[LAST_INDEX] = userAnswer;
+    state.solved[LAST_INDEX] = ok;
+    state.finalResult = ok ? "correct" : "wrong";
+    saveState();
+
+    input.disabled = true;
+    button.disabled = true;
+
+    setTimeout(showFinalResult, 500);
+    return;
+  }
+
   const correctAnswer = QUESTIONS[currentQuestion].answer;
 
   if (normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer)) {
@@ -630,23 +673,35 @@ function renderAnswers() {
   `;
 }
 
-function showClearPage() {
+function showFinalResult() {
   currentPage = "clear";
   stopGameTimer();
   renderSidebar();
 
+  const ok = state.finalResult === "correct";
   const content = document.getElementById("content");
 
   content.className = "content clear-page";
 
-  content.innerHTML = `
-    <div class="clear-icon">🔓</div>
-    <h2 class="clear-title">脱出成功！</h2>
-    <p class="clear-text">
-      すべての問題をクリアしました。<br>
-      おめでとうございます！
-    </p>
-  `;
+  content.innerHTML = ok
+    ? `
+      <div class="clear-icon">🔓</div>
+      <h2 class="clear-title">脱出成功</h2>
+      <p class="clear-text">
+        君たちは正しく七不思議の真実に<br>辿り着くことができたようだ...
+      </p>
+    `
+    : `
+      <div class="clear-icon">🔒</div>
+      <h2 class="clear-title fail">脱出失敗</h2>
+      <p class="clear-text">
+        君たちは七不思議の真実に<br>辿り着くことができなかったみたいだ...
+      </p>
+    `;
+}
+
+function showClearPage() {
+  showFinalResult();
 }
 
 function showAnswersPage() {
@@ -745,3 +800,4 @@ renderSidebar();
 updateGameTimer();
 renderQuestion();
 startGameTimer();
+
