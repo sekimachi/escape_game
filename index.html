@@ -17,6 +17,7 @@
     body::before, body::after { content: ""; position: fixed; pointer-events: none; border: 1px solid rgba(48,74,57,.18); border-radius: 50%; }
     body::before { width: min(88vw, 760px); aspect-ratio: 1; }
     body::after { width: min(70vw, 600px); aspect-ratio: 1; }
+
     .start-button {
       position: relative; z-index: 1; width: min(82vw, 340px); min-height: 86px;
       padding: 20px 28px; border: 3px solid #304a39; border-radius: 16px;
@@ -29,9 +30,42 @@
     .start-button:hover { background: #f4eac0; transform: translateY(-3px); box-shadow: 0 11px 0 #9eaa83, 0 20px 36px rgba(37,57,43,.18); }
     .start-button:active { transform: translateY(5px); box-shadow: 0 3px 0 #9eaa83; }
     .start-button:focus-visible { outline: 4px solid #527aab; outline-offset: 6px; }
+
+    /* 説明パネル */
+    .intro { display: none; position: relative; z-index: 1; width: min(640px, 100%); text-align: center;
+      padding: clamp(26px, 5vw, 48px); border: 2px solid #91a98d; border-radius: 22px;
+      color: #f8f5e9; background: linear-gradient(145deg, #405d4d, #2c4638);
+      box-shadow: 0 18px 42px rgba(32,54,39,.22); }
+    .intro.show { display: block; animation: introIn .6s ease both; }
+    .intro-text { margin: 0 0 30px; font-size: clamp(15px, 2.4vw, 19px); line-height: 2.1; letter-spacing: .04em; }
+    .intro-text span { display: block; }
+    .intro-text .note { margin-top: 14px; color: #e6dca9; font-weight: 700; }
+    .intro .start-button { width: min(300px, 100%); min-height: 64px; font-size: 20px; box-shadow: 0 5px 0 #b5a96f; border: 0; }
+    .intro .start-button:hover { box-shadow: 0 7px 0 #b5a96f; }
+    .intro .start-button:active { box-shadow: 0 2px 0 #b5a96f; }
+    @keyframes introIn { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
-  <button class="start-button" type="button" onclick="location.href='game.html'">ゲームスタート　→</button>
+  <button id="startButton" class="start-button" type="button">ゲームスタート　→</button>
+
+  <section id="intro" class="intro">
+    <p class="intro-text">
+      <span>七不思議の内、六つ目までの謎の在処は分かっている。</span>
+      <span>謎を解くと、とある言葉が浮かび上がってくるから、</span>
+      <span>それを解答欄に記入しよう。</span>
+      <span>それぞれの場所の謎を全て解き、</span>
+      <span>七つ目の謎に辿り着こう。</span>
+      <span class="note">なお、最初の六つの謎は、どこから解き始めても構わない。</span>
+    </p>
+    <button class="start-button" type="button" onclick="location.href='game.html'">謎に挑む　→</button>
+  </section>
+
+  <script>
+    document.getElementById("startButton").addEventListener("click", function () {
+      this.style.display = "none";
+      document.getElementById("intro").classList.add("show");
+    });
+  </script>
 </body>
 </html>
