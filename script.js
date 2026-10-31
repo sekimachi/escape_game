@@ -70,17 +70,10 @@ const QUESTIONS = [
     answer: "あなた",
     hint1: "このマスの大きさとマーク、どこかで見た気がするんだよなぁ",
     hint2: "さっきの理科室の標本の裏に何か模様が書いてあるぞ..."
-  },
-  {
-    title: "第9問",
-    problem: "ここに第9問の問題文を入れてください。",
-    answer: "あなた",
-    hint1: "ここに第9問のヒント①を入れてください。",
-    hint2: "ここに第9問のヒント②を入れてください。"
   }
 ];
 
-// 一つ前の問題を解くまでサイドバーに表示しない問題（0始まり：第8問=7, 第9問=8）
+// 一つ前の問題を解くまでサイドバーに表示しない問題（0始まり：第8問=7）
 const HIDDEN_UNTIL_UNLOCKED_FROM = 7;
 
 // ヒントが公開される間隔（秒）
@@ -210,7 +203,7 @@ function renderSidebar() {
     const unlocked = getUnlockedQuestion(index);
     const solved = state.solved[index];
 
-    // 第8問・第9問は、一つ前の問題を解くまで表示しない
+    // 第8問は、一つ前の問題を解くまで表示しない
     if (index >= HIDDEN_UNTIL_UNLOCKED_FROM && !unlocked) {
       return;
     }
