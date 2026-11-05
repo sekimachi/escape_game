@@ -991,3 +991,13 @@ button {
     transition-duration: .01ms !important;
   }
 }
+/* 解答文字数 */
+.answer-length {
+  margin: 0 0 14px;
+  text-align: center;
+  color: var(--gold-light);
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+.answer-length strong { font-size: 22px; }

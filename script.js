@@ -1,19 +1,14 @@
+
 /*
  * ==========================================
  * 学園祭 脱出ゲーム
  * ==========================================
  *
- * 問題を変更するときは QUESTIONS の
- * problem / answer / hint1 / hint2 を変更してください。
+ * 答えの文字数表示機能付き
  *
- * answer は正解を1つ指定します。
- * 大文字・小文字は区別しません。
- * 前後の空白は無視します。
- *
- * hint1 は問題を開いてから45秒後、
- * hint2 はさらに45秒後（開始から90秒後）に公開されます。
+ * hint1：45秒後に公開
+ * hint2：90秒後に公開
  */
-
 
 const QUESTIONS = [
   {
@@ -74,19 +69,19 @@ const QUESTIONS = [
   }
 ];
 
-
-// 一つ前の問題を解くまでサイドバーに表示しない問題（0始まり：第8問=7）
+// 第7問以降は解放されるまで非表示
 const HIDDEN_UNTIL_UNLOCKED_FROM = 6;
 
-// ヒントが公開される間隔（秒）
+// ヒントの公開間隔
 const HINT_INTERVAL = 45;
 
-// 自由な順番で解ける問題の数（第1〜第6問）
+// 最初から自由に解ける問題数
 const FREE_COUNT = 6;
 
-// 最後の問題は1回しか解答できない
+// 最終問題
 const LAST_INDEX = QUESTIONS.length - 1;
 
+// 保存キー
 const STORAGE_KEY = "school_festival_escape_game_v1";
 
 let state = loadState();
@@ -95,15 +90,23 @@ let gameTimerInterval = null;
 let remainingSeconds = 12 * 60;
 let currentQuestion = state.currentQuestion || 0;
 
+// ==========================================
+// 初期状態
+// ==========================================
+
 function createInitialState() {
   return {
     solved: Array(QUESTIONS.length).fill(false),
     answers: Array(QUESTIONS.length).fill(""),
     hintSeconds: Array(QUESTIONS.length).fill(0),
     currentQuestion: 0,
-    finalResult: null   // null: 未解答 / "correct" / "wrong"
+    finalResult: null
   };
 }
+
+// ==========================================
+// 保存データの読み込み
+// ==========================================
 
 function loadState() {
   try {
@@ -122,7 +125,6 @@ function loadState() {
       return createInitialState();
     }
 
-    // 以前の保存データにはヒント用の配列がないので補う
     if (!Array.isArray(parsed.hintSeconds)) {
       parsed.hintSeconds = [];
     }
@@ -141,9 +143,14 @@ function loadState() {
 
     parsed.solved = parsed.solved.slice(0, QUESTIONS.length);
     parsed.answers = parsed.answers.slice(0, QUESTIONS.length);
+
     parsed.hintSeconds = parsed.hintSeconds
       .slice(0, QUESTIONS.length)
-      .map((value) => (typeof value === "number" && value >= 0 ? value : 0));
+      .map(value =>
+        typeof value === "number" && value >= 0
+          ? value
+          : 0
+      );
 
     if (
       typeof parsed.currentQuestion !== "number" ||
@@ -153,20 +160,35 @@ function loadState() {
       parsed.currentQuestion = 0;
     }
 
-    if (parsed.finalResult !== "correct" && parsed.finalResult !== "wrong") {
+    if (
+      parsed.finalResult !== "correct" &&
+      parsed.finalResult !== "wrong"
+    ) {
       parsed.finalResult = null;
     }
 
     return parsed;
+
   } catch (error) {
     console.error("保存データの読み込みに失敗:", error);
     return createInitialState();
   }
 }
 
+// ==========================================
+// 保存
+// ==========================================
+
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(state)
+  );
 }
+
+// ==========================================
+// 解答の正規化
+// ==========================================
 
 function normalizeAnswer(value) {
   return String(value)
@@ -175,35 +197,49 @@ function normalizeAnswer(value) {
     .toLowerCase();
 }
 
+// ==========================================
+// 問題の解放判定
+// ==========================================
+
 function getUnlockedQuestion(index) {
-  // 第1〜第6問は最初から自由に選べる
   if (index < FREE_COUNT) {
     return true;
   }
 
-  // 第7問は、第1〜第6問をすべて解くと解放
   if (index === FREE_COUNT) {
-    return state.solved.slice(0, FREE_COUNT).every(Boolean);
+    return state.solved
+      .slice(0, FREE_COUNT)
+      .every(Boolean);
   }
 
-  // 第8問以降は、一つ前の問題を解くと解放
   return state.solved[index - 1] === true;
 }
 
-// 解答後に進む問題の番号（なければ -1）
+// ==========================================
+// 次の問題
+// ==========================================
+
 function getNextIndex(index) {
   if (index < FREE_COUNT) {
-    // 未解答の問題を順に探す
     for (let k = 1; k < FREE_COUNT; k++) {
       const j = (index + k) % FREE_COUNT;
-      if (!state.solved[j]) return j;
+
+      if (!state.solved[j]) {
+        return j;
+      }
     }
-    // 六問すべて解いたら第7問へ
+
     return FREE_COUNT;
   }
 
-  return index + 1 < QUESTIONS.length ? index + 1 : -1;
+  return index + 1 < QUESTIONS.length
+    ? index + 1
+    : -1;
 }
+
+// ==========================================
+// サイドバー
+// ==========================================
 
 function renderSidebar() {
   const list = document.getElementById("questionList");
@@ -213,8 +249,10 @@ function renderSidebar() {
     const unlocked = getUnlockedQuestion(index);
     const solved = state.solved[index];
 
-    // 第8問は、一つ前の問題を解くまで表示しない
-    if (index >= HIDDEN_UNTIL_UNLOCKED_FROM && !unlocked) {
+    if (
+      index >= HIDDEN_UNTIL_UNLOCKED_FROM &&
+      !unlocked
+    ) {
       return;
     }
 
@@ -239,14 +277,15 @@ function renderSidebar() {
     if (solved) {
       status = "✓";
     } else if (index < FREE_COUNT) {
-      // 第1〜第6問は最初から自由に選べるので、マークなし
       status = "";
     } else if (unlocked) {
       status = "🔓";
     }
 
     button.innerHTML = `
-      <span class="question-number">${String(index + 1).padStart(2, "0")}</span>
+      <span class="question-number">
+        ${String(index + 1).padStart(2, "0")}
+      </span>
       <span>${question.title}</span>
       <span class="question-status">${status}</span>
     `;
@@ -256,8 +295,8 @@ function renderSidebar() {
         currentQuestion = index;
         currentPage = "question";
         state.currentQuestion = index;
-        saveState();
 
+        saveState();
         renderSidebar();
         renderQuestion();
       });
@@ -267,27 +306,39 @@ function renderSidebar() {
   });
 }
 
+// ==========================================
+// 問題画面
+// ==========================================
+
 function renderQuestion() {
   const content = document.getElementById("content");
 
   const question = QUESTIONS[currentQuestion];
   const solved = state.solved[currentQuestion];
 
-  // 最終問題を解答済みなら、結果画面を表示
-  if (currentQuestion === LAST_INDEX && state.finalResult) {
+  if (
+    currentQuestion === LAST_INDEX &&
+    state.finalResult
+  ) {
     showFinalResult();
     return;
   }
 
   content.className = "content";
 
+  // 正解の文字数を自動計算
+  const answerLength = Array.from(question.answer).length;
+
   content.innerHTML = `
     <div class="question-header">
       <div class="question-label">
-        QUESTION ${String(currentQuestion + 1).padStart(2, "0")} / ${QUESTIONS.length}
+        QUESTION ${String(currentQuestion + 1).padStart(2, "0")}
+        / ${QUESTIONS.length}
       </div>
 
-      <h2 class="question-title">${escapeHtml(question.title)}</h2>
+      <h2 class="question-title">
+        ${escapeHtml(question.title)}
+      </h2>
 
       ${
         solved
@@ -297,15 +348,28 @@ function renderQuestion() {
     </div>
 
     <section class="question-card">
-      <p class="problem">${escapeHtml(question.problem)}</p>
+      <p class="problem">
+        ${escapeHtml(question.problem)}
+      </p>
 
       ${
         currentQuestion === LAST_INDEX
-          ? `<div class="final-warning">⚠ この問題は<strong>1回しか解答できません</strong>。慎重に答えてください。</div>`
+          ? `
+            <div class="final-warning">
+              ⚠ この問題は
+              <strong>1回しか解答できません</strong>。
+              慎重に答えてください。
+            </div>
+          `
           : ""
       }
 
       <div class="answer-area">
+
+        <div class="answer-length">
+          答えは <strong>${answerLength}文字</strong>
+        </div>
+
         <input
           id="answerInput"
           class="answer-input"
@@ -314,7 +378,11 @@ function renderQuestion() {
           autocapitalize="none"
           spellcheck="false"
           placeholder="解答を入力"
-          value="${solved ? escapeAttribute(state.answers[currentQuestion]) : ""}"
+          value="${
+            solved
+              ? escapeAttribute(state.answers[currentQuestion])
+              : ""
+          }"
           ${solved ? "disabled" : ""}
         >
 
@@ -330,11 +398,16 @@ function renderQuestion() {
 
         ${
           solved && getNextIndex(currentQuestion) !== -1
-            ? `<button id="nextButton" class="next-button">
-                ${currentQuestion < FREE_COUNT && getNextIndex(currentQuestion) < FREE_COUNT
-                  ? "未解答の問題へ"
-                  : "次の問題へ"}
-              </button>`
+            ? `
+              <button id="nextButton" class="next-button">
+                ${
+                  currentQuestion < FREE_COUNT &&
+                  getNextIndex(currentQuestion) < FREE_COUNT
+                    ? "未解答の問題へ"
+                    : "次の問題へ"
+                }
+              </button>
+            `
             : ""
         }
       </div>
@@ -347,10 +420,11 @@ function renderQuestion() {
     </section>
   `;
 
-  // 画面と問題カードを滑らかに登場させる
   content.classList.add("page-enter");
 
-  const renderedCard = content.querySelector(".question-card");
+  const renderedCard =
+    content.querySelector(".question-card");
+
   if (renderedCard) {
     renderedCard.classList.add("card-enter");
   }
@@ -359,18 +433,22 @@ function renderQuestion() {
     setupAnswerInput();
     updateHintArea(false);
   } else {
-    const nextButton = document.getElementById("nextButton");
+    const nextButton =
+      document.getElementById("nextButton");
 
     if (nextButton) {
       nextButton.addEventListener("click", () => {
         const nextIndex = getNextIndex(currentQuestion);
 
-        if (nextIndex !== -1 && getUnlockedQuestion(nextIndex)) {
+        if (
+          nextIndex !== -1 &&
+          getUnlockedQuestion(nextIndex)
+        ) {
           currentQuestion = nextIndex;
           state.currentQuestion = nextIndex;
           currentPage = "question";
-          saveState();
 
+          saveState();
           renderSidebar();
           renderQuestion();
         }
@@ -379,25 +457,31 @@ function renderQuestion() {
   }
 }
 
-/* =========================
-   ヒント
-========================= */
+// ==========================================
+// ヒント
+// ==========================================
 
 function getRevealedHintCount(seconds) {
-  if (seconds >= HINT_INTERVAL * 2) return 2;
-  if (seconds >= HINT_INTERVAL) return 1;
+  if (seconds >= HINT_INTERVAL * 2) {
+    return 2;
+  }
+
+  if (seconds >= HINT_INTERVAL) {
+    return 1;
+  }
+
   return 0;
 }
 
 function updateHintArea(announce) {
   const area = document.getElementById("hintArea");
+
   if (!area) return;
 
   const question = QUESTIONS[currentQuestion];
   const seconds = state.hintSeconds[currentQuestion] || 0;
   const revealed = getRevealedHintCount(seconds);
 
-  // 初回描画のときは「新しく公開された」扱いにしない
   const previous =
     area.dataset.revealed === undefined
       ? revealed
@@ -406,23 +490,37 @@ function updateHintArea(announce) {
   area.dataset.revealed = String(revealed);
 
   if (announce && revealed > previous) {
-    showToast(`ヒント${revealed === 1 ? "①" : "②"}が公開されました`);
+    showToast(
+      `ヒント${revealed === 1 ? "①" : "②"}が公開されました`
+    );
   }
 
   const hints = [
-    { label: "ヒント①", text: question.hint1 },
-    { label: "ヒント②", text: question.hint2 }
+    {
+      label: "ヒント①",
+      text: question.hint1
+    },
+    {
+      label: "ヒント②",
+      text: question.hint2
+    }
   ];
 
   area.innerHTML = hints
     .map((hint, index) => {
       if (revealed > index) {
-        const isNew = revealed > previous && revealed === index + 1;
+        const isNew =
+          revealed > previous &&
+          revealed === index + 1;
 
         return `
           <div class="hint-box open${isNew ? " hint-new" : ""}">
-            <div class="hint-label">💡 ${hint.label}</div>
-            <div class="hint-text">${escapeHtml(hint.text)}</div>
+            <div class="hint-label">
+              💡 ${hint.label}
+            </div>
+            <div class="hint-text">
+              ${escapeHtml(hint.text)}
+            </div>
           </div>
         `;
       }
@@ -430,7 +528,9 @@ function updateHintArea(announce) {
       let note;
 
       if (index === revealed) {
-        const remain = HINT_INTERVAL * (index + 1) - seconds;
+        const remain =
+          HINT_INTERVAL * (index + 1) - seconds;
+
         note = `あと ${remain} 秒で公開`;
       } else {
         note = "ヒント①の公開後、さらに45秒で公開";
@@ -438,15 +538,22 @@ function updateHintArea(announce) {
 
       return `
         <div class="hint-box locked">
-          <div class="hint-label">🔒 ${hint.label}</div>
-          <div class="hint-text">${note}</div>
+          <div class="hint-label">
+            🔒 ${hint.label}
+          </div>
+          <div class="hint-text">
+            ${note}
+          </div>
         </div>
       `;
     })
     .join("");
 }
 
-// 1秒ごとに呼ばれる：今開いている未解答の問題の経過時間を進める
+// ==========================================
+// ヒント用タイマー
+// ==========================================
+
 function tickHint() {
   if (currentPage !== "question") return;
   if (state.solved[currentQuestion]) return;
@@ -458,6 +565,10 @@ function tickHint() {
   updateHintArea(true);
 }
 
+// ==========================================
+// 解答入力欄
+// ==========================================
+
 function setupAnswerInput() {
   const input = document.getElementById("answerInput");
   const button = document.getElementById("submitButton");
@@ -466,12 +577,16 @@ function setupAnswerInput() {
 
   button.addEventListener("click", checkAnswer);
 
-  input.addEventListener("keydown", (event) => {
+  input.addEventListener("keydown", event => {
     if (event.key === "Enter") {
       checkAnswer();
     }
   });
 }
+
+// ==========================================
+// 解答判定
+// ==========================================
 
 function checkAnswer() {
   const input = document.getElementById("answerInput");
@@ -492,7 +607,7 @@ function checkAnswer() {
     return;
   }
 
-  // 最終問題は1回きり。正解・不正解どちらでも確定する
+  // 最終問題は1回のみ解答可能
   if (currentQuestion === LAST_INDEX) {
     const ok =
       normalizeAnswer(userAnswer) ===
@@ -501,11 +616,13 @@ function checkAnswer() {
     const confirmed = window.confirm(
       "この問題は1回しか解答できません。\nこの答えで確定しますか?"
     );
+
     if (!confirmed) return;
 
     state.answers[LAST_INDEX] = userAnswer;
     state.solved[LAST_INDEX] = ok;
     state.finalResult = ok ? "correct" : "wrong";
+
     saveState();
 
     input.disabled = true;
@@ -517,12 +634,10 @@ function checkAnswer() {
 
   const correctAnswer = QUESTIONS[currentQuestion].answer;
 
-  if (normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer)) {
-    /*
-     * ==========================================
-     * 正解した瞬間に回答を確定
-     * ==========================================
-     */
+  if (
+    normalizeAnswer(userAnswer) ===
+    normalizeAnswer(correctAnswer)
+  ) {
     state.solved[currentQuestion] = true;
     state.answers[currentQuestion] = userAnswer;
 
@@ -544,25 +659,21 @@ function checkAnswer() {
 
     showToast("正解しました！");
 
-    // まず現在の問題を正解済みに更新
     renderSidebar();
 
     const nextIndex = getNextIndex(currentQuestion);
 
     if (nextIndex === -1) {
-      // 全問クリア
       setTimeout(() => {
         showClearPage();
       }, 850);
+
     } else if (nextIndex >= FREE_COUNT) {
-      // 第7問以降が新しく解放されたときだけ「鍵が外れる」演出
       setTimeout(() => {
         showUnlockAnimation(nextIndex);
       }, 420);
     }
-    // 第1〜6問の途中は、「未解答の問題へ」ボタンで進めます
 
-    // 入力欄を固定した状態を維持
     setTimeout(() => {
       if (currentPage === "question") {
         renderQuestion();
@@ -571,7 +682,8 @@ function checkAnswer() {
 
   } else {
     message.className = "message incorrect";
-    message.textContent = "✕ 不正解です。もう一度考えてみよう。";
+    message.textContent =
+      "✕ 不正解です。もう一度考えてみよう。";
 
     answerArea.classList.remove("wrong");
     void answerArea.offsetWidth;
@@ -579,8 +691,11 @@ function checkAnswer() {
   }
 }
 
+// ==========================================
+// 問題解放アニメーション
+// ==========================================
+
 function showUnlockAnimation(nextIndex) {
-  // 次の問題を先に解放する
   state.currentQuestion = currentQuestion;
   saveState();
 
@@ -594,22 +709,29 @@ function showUnlockAnimation(nextIndex) {
           <span></span><span></span><span></span><span></span>
           <span></span><span></span><span></span><span></span>
         </div>
+
         <div class="lock-shackle"></div>
         <div class="lock-body"></div>
         <div class="lock-keyhole"></div>
       </div>
 
-      <h2 class="unlock-title">LOCK UNLOCKED</h2>
+      <h2 class="unlock-title">
+        LOCK UNLOCKED
+      </h2>
+
       <p class="unlock-subtitle">
-        ${escapeHtml(QUESTIONS[nextIndex].title)} が解放されました
+        ${escapeHtml(QUESTIONS[nextIndex].title)}
+        が解放されました
       </p>
-      <div class="unlock-next">次の問題へ進めます</div>
+
+      <div class="unlock-next">
+        次の問題へ進めます
+      </div>
     </div>
   `;
 
   document.body.appendChild(overlay);
 
-  // サイドバーの次問題をアニメーション
   renderSidebar();
 
   const nextButton = document.querySelector(
@@ -620,24 +742,28 @@ function showUnlockAnimation(nextIndex) {
     nextButton.classList.add("just-unlocked");
   }
 
-  // 一定時間後に演出を閉じる
   setTimeout(() => {
     overlay.classList.add("hide");
 
     setTimeout(() => {
       overlay.remove();
 
-      // 解放された問題を自動的に表示
       currentQuestion = nextIndex;
       currentPage = "question";
       state.currentQuestion = nextIndex;
-      saveState();
 
+      saveState();
       renderSidebar();
       renderQuestion();
+
     }, 350);
+
   }, 1500);
 }
+
+// ==========================================
+// 過去の解答
+// ==========================================
 
 function renderAnswers() {
   const content = document.getElementById("content");
@@ -652,7 +778,10 @@ function renderAnswers() {
 
       return `
         <div class="answer-record">
-          <div class="answer-record-title">${escapeHtml(question.title)}</div>
+          <div class="answer-record-title">
+            ${escapeHtml(question.title)}
+          </div>
+
           <div class="answer-record-value">
             ${escapeHtml(state.answers[index])}
           </div>
@@ -663,20 +792,29 @@ function renderAnswers() {
     .join("");
 
   content.innerHTML = `
-    <h2 class="page-title">過去の解答</h2>
+    <h2 class="page-title">
+      過去の解答
+    </h2>
 
     ${
       records
         ? `<div class="answers-list">${records}</div>`
-        : `<div class="empty-answers">
+        : `
+          <div class="empty-answers">
             まだ正解した問題はありません。
-           </div>`
+          </div>
+        `
     }
   `;
 }
 
+// ==========================================
+// 最終結果
+// ==========================================
+
 function showFinalResult() {
   currentPage = "clear";
+
   stopGameTimer();
   renderSidebar();
 
@@ -690,14 +828,16 @@ function showFinalResult() {
       <div class="clear-icon">🔓</div>
       <h2 class="clear-title">正解</h2>
       <p class="clear-text">
-        君たちは正しく七不思議の真実に<br>辿り着くことができたようだ...
+        君たちは正しく七不思議の真実に<br>
+        辿り着くことができたようだ...
       </p>
     `
     : `
       <div class="clear-icon">🔒</div>
       <h2 class="clear-title fail">不正解</h2>
       <p class="clear-text">
-        君たちは七不思議の真実に<br>辿り着くことができなかったみたいだ...
+        君たちは七不思議の真実に<br>
+        辿り着くことができなかったみたいだ...
       </p>
     `;
 }
@@ -706,11 +846,20 @@ function showClearPage() {
   showFinalResult();
 }
 
+// ==========================================
+// 過去の解答画面へ
+// ==========================================
+
 function showAnswersPage() {
   currentPage = "answers";
+
   renderSidebar();
   renderAnswers();
 }
+
+// ==========================================
+// HTMLエスケープ
+// ==========================================
 
 function escapeHtml(value) {
   return String(value)
@@ -724,6 +873,10 @@ function escapeHtml(value) {
 function escapeAttribute(value) {
   return escapeHtml(value);
 }
+
+// ==========================================
+// 通知
+// ==========================================
 
 let toastTimer;
 
@@ -740,14 +893,31 @@ function showToast(text) {
   }, 1800);
 }
 
+// ==========================================
+// ゲームタイマー表示
+// ==========================================
+
 function updateGameTimer() {
   const timer = document.getElementById("gameTimer");
+
   if (!timer) return;
+
   const minutes = Math.floor(remainingSeconds / 60);
   const seconds = remainingSeconds % 60;
-  timer.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  timer.classList.toggle("timer-warning", remainingSeconds <= 60);
+
+  timer.textContent =
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(seconds).padStart(2, "0")}`;
+
+  timer.classList.toggle(
+    "timer-warning",
+    remainingSeconds <= 60
+  );
 }
+
+// ==========================================
+// タイマー停止
+// ==========================================
 
 function stopGameTimer() {
   if (gameTimerInterval !== null) {
@@ -756,16 +926,20 @@ function stopGameTimer() {
   }
 }
 
+// ==========================================
+// タイマー開始
+// ==========================================
+
 function startGameTimer() {
   stopGameTimer();
   updateGameTimer();
+
   gameTimerInterval = setInterval(() => {
     if (currentPage === "start") {
       stopGameTimer();
       return;
     }
 
-    // ヒント用の経過時間を進める
     tickHint();
 
     if (remainingSeconds > 0) {
@@ -775,31 +949,51 @@ function startGameTimer() {
       stopGameTimer();
       showToast("制限時間終了！");
     }
+
   }, 1000);
 }
 
+// ==========================================
+// 過去の解答ボタン
+// ==========================================
 
-document.getElementById("answersButton").addEventListener("click", () => {
-  showAnswersPage();
-});
+document
+  .getElementById("answersButton")
+  .addEventListener("click", () => {
+    showAnswersPage();
+  });
 
-document.getElementById("resetButton").addEventListener("click", () => {
-  const confirmed = window.confirm(
-    "進行状況と解答をすべて消去して、スタート画面に戻しますか？"
-  );
-  if (!confirmed) return;
+// ==========================================
+// リセットボタン
+// ==========================================
 
-  stopGameTimer();
-  state = createInitialState();
-  currentQuestion = 0;
-  remainingSeconds = 12 * 60;
-  saveState();
-  window.location.href = "index.html";
-});
+document
+  .getElementById("resetButton")
+  .addEventListener("click", () => {
+    const confirmed = window.confirm(
+      "進行状況と解答をすべて消去して、スタート画面に戻しますか？"
+    );
+
+    if (!confirmed) return;
+
+    stopGameTimer();
+
+    state = createInitialState();
+    currentQuestion = 0;
+    remainingSeconds = 12 * 60;
+
+    saveState();
+
+    window.location.href = "index.html";
+  });
+
+// ==========================================
+// 初期起動
+// ==========================================
 
 currentPage = "question";
+
 renderSidebar();
 updateGameTimer();
 renderQuestion();
 startGameTimer();
-
