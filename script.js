@@ -628,29 +628,58 @@ function checkAnswer() {
   // 最終問題：1回のみ
   // ========================================
 
-  if (currentQuestion === LAST_INDEX) {
-    const ok =
-      normalizeAnswer(userAnswer) ===
-      normalizeAnswer(QUESTIONS[LAST_INDEX].answer);
+if (currentQuestion === LAST_INDEX) {
+  const ok =
+    normalizeAnswer(userAnswer) ===
+    normalizeAnswer(QUESTIONS[LAST_INDEX].answer);
 
-    const confirmed = window.confirm(
-      "この問題は1回しか解答できません。\nこの答えで確定しますか?"
-    );
+  const confirmed = window.confirm(
+    "この問題は1回しか解答できません。\nこの答えで確定しますか?"
+  );
 
-    if (!confirmed) return;
+  if (!confirmed) return;
 
-    state.answers[LAST_INDEX] = userAnswer;
-    state.solved[LAST_INDEX] = ok;
-    state.finalResult = ok ? "correct" : "wrong";
+  state.answers[LAST_INDEX] = userAnswer;
+  state.solved[LAST_INDEX] = ok;
+  state.finalResult = ok ? "correct" : "wrong";
 
-    saveState();
+  saveState();
 
-    input.disabled = true;
-    button.disabled = true;
+  input.disabled = true;
+  button.disabled = true;
 
-    setTimeout(showFinalResult, 500);
-    return;
-  }
+  // 判定中の演出
+  const overlay = document.createElement("div");
+  overlay.className = "final-judging-overlay";
+
+  overlay.innerHTML = `
+    <div class="final-judging-box">
+      <div class="final-judging-label">FINAL ANSWER</div>
+      <div class="final-judging-text">
+        判定中<span id="judgingDots"></span>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const dots = document.getElementById("judgingDots");
+  let count = 0;
+
+  const dotTimer = setInterval(() => {
+    count = (count % 3) + 1;
+    dots.textContent = "・".repeat(count);
+  }, 400);
+
+  // 約2秒後に結果を表示
+  setTimeout(() => {
+    clearInterval(dotTimer);
+    overlay.remove();
+    showFinalResult();
+  }, 2000);
+
+  return;
+}
 
   // ========================================
   // 通常問題

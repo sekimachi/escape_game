@@ -1144,3 +1144,53 @@ button {
     font-size: 16px;
   }
 }
+
+/* ==========================================
+   最終問題の判定待機演出
+========================================== */
+
+.final-judging-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(10, 7, 5, 0.96);
+  backdrop-filter: blur(8px);
+
+  animation: judgingFadeIn 0.4s ease;
+}
+
+.final-judging-box {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.final-judging-label {
+  font-size: 12px;
+  letter-spacing: 5px;
+  color: #b99455;
+  margin-bottom: 35px;
+}
+
+.final-judging-text {
+  font-family: var(--serif);
+  font-size: clamp(26px, 6vw, 40px);
+  color: #f0dfbd;
+  letter-spacing: 5px;
+}
+
+#judgingDots {
+  display: inline-block;
+  width: 3em;
+  text-align: left;
+  color: #d6a65a;
+}
+
+@keyframes judgingFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
