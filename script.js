@@ -1071,7 +1071,7 @@ document
 
     state = createInitialState();
     currentQuestion = 0;
-    remainingSeconds = 12 * 60;
+    remainingSeconds = 16 * 60;
 
     saveState();
 
