@@ -1,14 +1,25 @@
 
 /*
  * ==========================================
- * 学園祭 脱出ゲーム
+ * 七不思議の向こう側 — ゲーム
  * ==========================================
  *
- * 答えの文字数表示機能付き
+ * 第1〜6問：自由に解答
+ * 第7問：第1〜6問の正解後に解放
+ * 第8問：第7問の正解後に解放
  *
- * hint1：45秒後に公開
- * hint2：90秒後に公開
+ * ヒント①：45秒後
+ * ヒント②：90秒後
+ *
+ * 第7問クリア後：
+ * ロック解除演出 → 第二倉庫への案内
+ *
+ * 最終問題は1回のみ解答可能
  */
+
+// ==========================================
+// 問題データ
+// ==========================================
 
 const QUESTIONS = [
   {
@@ -69,26 +80,24 @@ const QUESTIONS = [
   }
 ];
 
-// 第7問以降は解放されるまで非表示
+// ==========================================
+// 基本設定
+// ==========================================
+
 const HIDDEN_UNTIL_UNLOCKED_FROM = 6;
-
-// ヒントの公開間隔
 const HINT_INTERVAL = 45;
-
-// 最初から自由に解ける問題数
 const FREE_COUNT = 6;
-
-// 最終問題
 const LAST_INDEX = QUESTIONS.length - 1;
 
-// 保存キー
 const STORAGE_KEY = "school_festival_escape_game_v1";
 
 let state = loadState();
-let currentPage = "start";
+let currentPage = "question";
+let currentQuestion = state.currentQuestion || 0;
+
 let gameTimerInterval = null;
 let remainingSeconds = 12 * 60;
-let currentQuestion = state.currentQuestion || 0;
+let toastTimer = null;
 
 // ==========================================
 // 初期状態
@@ -105,7 +114,7 @@ function createInitialState() {
 }
 
 // ==========================================
-// 保存データの読み込み
+// 保存データ読み込み
 // ==========================================
 
 function loadState() {
@@ -286,8 +295,12 @@ function renderSidebar() {
       <span class="question-number">
         ${String(index + 1).padStart(2, "0")}
       </span>
-      <span>${question.title}</span>
-      <span class="question-status">${status}</span>
+
+      <span>${escapeHtml(question.title)}</span>
+
+      <span class="question-status">
+        ${status}
+      </span>
     `;
 
     if (unlocked && currentPage !== "start") {
@@ -458,7 +471,7 @@ function renderQuestion() {
 }
 
 // ==========================================
-// ヒント
+// ヒント公開数
 // ==========================================
 
 function getRevealedHintCount(seconds) {
@@ -472,6 +485,10 @@ function getRevealedHintCount(seconds) {
 
   return 0;
 }
+
+// ==========================================
+// ヒント表示
+// ==========================================
 
 function updateHintArea(announce) {
   const area = document.getElementById("hintArea");
@@ -607,7 +624,10 @@ function checkAnswer() {
     return;
   }
 
-  // 最終問題は1回のみ解答可能
+  // ========================================
+  // 最終問題：1回のみ
+  // ========================================
+
   if (currentQuestion === LAST_INDEX) {
     const ok =
       normalizeAnswer(userAnswer) ===
@@ -631,6 +651,10 @@ function checkAnswer() {
     setTimeout(showFinalResult, 500);
     return;
   }
+
+  // ========================================
+  // 通常問題
+  // ========================================
 
   const correctAnswer = QUESTIONS[currentQuestion].answer;
 
@@ -658,7 +682,6 @@ function checkAnswer() {
     }
 
     showToast("正解しました！");
-
     renderSidebar();
 
     const nextIndex = getNextIndex(currentQuestion);
@@ -692,7 +715,7 @@ function checkAnswer() {
 }
 
 // ==========================================
-// 問題解放アニメーション
+// ロック解除アニメーション
 // ==========================================
 
 function showUnlockAnimation(nextIndex) {
@@ -748,17 +771,79 @@ function showUnlockAnimation(nextIndex) {
     setTimeout(() => {
       overlay.remove();
 
-      currentQuestion = nextIndex;
-      currentPage = "question";
-      state.currentQuestion = nextIndex;
+      // 第7問クリア後だけ特別ポップアップ
+      if (nextIndex === LAST_INDEX) {
+        showFinalMessage(() => {
+          currentQuestion = nextIndex;
+          currentPage = "question";
+          state.currentQuestion = nextIndex;
 
-      saveState();
-      renderSidebar();
-      renderQuestion();
+          saveState();
+          renderSidebar();
+          renderQuestion();
+        });
+      } else {
+        currentQuestion = nextIndex;
+        currentPage = "question";
+        state.currentQuestion = nextIndex;
+
+        saveState();
+        renderSidebar();
+        renderQuestion();
+      }
 
     }, 350);
 
   }, 1500);
+}
+
+// ==========================================
+// 第7問クリア後の特別ポップアップ
+// ==========================================
+
+function showFinalMessage(onContinue) {
+  const popup = document.createElement("div");
+  popup.className = "story-popup-overlay";
+
+  popup.innerHTML = `
+    <div class="story-popup">
+      <div class="story-popup-icon">✦</div>
+
+      <div class="story-popup-label">
+        FINAL MYSTERY
+      </div>
+
+      <h2 class="story-popup-title">
+        最後の謎へ
+      </h2>
+
+      <p class="story-popup-text">
+        ここまでよく辿り着いたね！<br>
+        最終問題を解くために第二倉庫へ行こう！
+      </p>
+
+      <button
+        id="storyContinueButton"
+        class="story-popup-button"
+        type="button"
+      >
+        次へ進む
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  document
+    .getElementById("storyContinueButton")
+    .addEventListener("click", () => {
+      popup.classList.add("hide");
+
+      setTimeout(() => {
+        popup.remove();
+        onContinue();
+      }, 350);
+    });
 }
 
 // ==========================================
@@ -826,7 +911,11 @@ function showFinalResult() {
   content.innerHTML = ok
     ? `
       <div class="clear-icon">🔓</div>
-      <h2 class="clear-title">正解</h2>
+
+      <h2 class="clear-title">
+        正解
+      </h2>
+
       <p class="clear-text">
         君たちは正しく七不思議の真実に<br>
         辿り着くことができたようだ...
@@ -834,7 +923,11 @@ function showFinalResult() {
     `
     : `
       <div class="clear-icon">🔒</div>
-      <h2 class="clear-title fail">不正解</h2>
+
+      <h2 class="clear-title fail">
+        不正解
+      </h2>
+
       <p class="clear-text">
         君たちは七不思議の真実に<br>
         辿り着くことができなかったみたいだ...
@@ -877,8 +970,6 @@ function escapeAttribute(value) {
 // ==========================================
 // 通知
 // ==========================================
-
-let toastTimer;
 
 function showToast(text) {
   const toast = document.getElementById("toast");
@@ -990,8 +1081,6 @@ document
 // ==========================================
 // 初期起動
 // ==========================================
-
-currentPage = "question";
 
 renderSidebar();
 updateGameTimer();
