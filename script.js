@@ -1094,15 +1094,20 @@ document
       "進行状況と解答をすべて消去して、スタート画面に戻しますか？"
     );
 
-    if (!confirmed) return;
+if (!confirmed) return;
 
-    stopGameTimer();
+// 最終問題の解答確定時にタイマー停止
+stopGameTimer();
 
-    state = createInitialState();
-    currentQuestion = 0;
-    remainingSeconds = 16 * 60;
+// 残り時間の表示を固定
+updateGameTimer();
 
-    saveState();
+// 最終結果を保存
+state.answers[LAST_INDEX] = userAnswer;
+state.solved[LAST_INDEX] = ok;
+state.finalResult = ok ? "correct" : "wrong";
+
+saveState();
 
     window.location.href = "index.html";
   });
