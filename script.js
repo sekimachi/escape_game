@@ -8,8 +8,8 @@
  * 第7問：第1〜6問の正解後に解放
  * 第8問：第7問の正解後に解放
  *
- * ヒント①：45秒後
- * ヒント②：90秒後
+ * ヒント①：30秒後
+ * ヒント②：75秒後（ヒント①から45秒後）
  *
  * 第7問クリア後：
  * ロック解除演出 → 第二倉庫への案内
@@ -24,35 +24,35 @@
 const QUESTIONS = [
   {
     title: "階段",
-    problem: "この学校では、階段の段数が日によって異なるらしい...\n目の前にある階段は3段だけど、本当に3段だったのかな...",
+    problem: "この学校では、階段の段数が日によって異なるらしい...\n目の前にある階段は3段だけど、本当は4段だった気がする...",
     answer: "かいだん",
-    hint1: "最初の階段は、同じ色がそろえられていて、右から順に高くなっていたな",
-    hint2: "裏側を見ると何か文字ができそうだから、その文字を向きを合わせて解いていくと解きやすいかも"
+    hint1: "最初にあった階段は、同じ色同士がそろえられていて、黒色は階段の枠だったな",
+    hint2: "裏側を見るとひらがなが書いてあるから、そのひらがなの向きを揃えてから組み立てると分かりそう"
   },
   {
     title: "教室",
     problem: "あれ、もう誰もいないはずの教室なのに何故かペットボトルが置いてある...\nしかもよく見ると何か書いてあるな...不気味だ",
     answer: "おもいで",
     hint1: "ペットボトルに書いてあるマークとメジャーに書いてあるマークは同じものが多いね",
-    hint2: "同じマーク同士を合わせてみよう。矢印を辿ると何か文字が浮かび上がってきそうだ。"
+    hint2: "同じマーク同士を合わせてみよう。矢印を辿ると何か文字が浮かび上がってきそうだ"
   },
   {
     title: "家庭科室",
     problem: "うわっ...！誰だ、こんなにたくさんのまち針をめちゃくちゃに刺したのは...\nただのいたずらなのか、それとも何か意味があるのだろうか。",
     answer: "にちじょう",
-    hint1: "見る方向を変えてみよう。別の方角から見ると、何か文字が浮かび上がるかもしれない。",
-    hint2: "黒い背景があるってことは、その表面から見れば文字が分かりそうだな"
+    hint1: "見る方向を変えてみよう。別の方角から見ると、何か文字が浮かび上がってきそうだ",
+    hint2: "黒い背景があるってことは、その正面から見れば文字が分かりそうだな"
   },
   {
     title: "音楽室",
     problem: "ここでは夜に変な音が聞こえてくるらしい...けど噂によると楽器の音じゃなくて人が動いている音っぽい...？\nあれ、この紙、何かゴミがついてると思ったらただの数学のプリントか...",
     answer: "そらみみ",
-    hint1: "このゴミの形、妙にそろっているな……。しかも、どれもきれいな楕円形だ。",
-    hint2: "そういえば今持ってるクリアファイルにも、変な模様が入っていたような"
+    hint1: "そういえば今持ってるクリアファイルにも、変な模様が入っていたな",
+    hint2: "その紙をどこかで折って見ると、何かが作れるかも...？"
   },
   {
     title: "図書館",
-    problem: "あれ？ いつも綺麗な図書館が今日は何故か本がぐちゃぐちゃだ...\nいったい何でこんなことになったんだろう",
+    problem: "あれ？ いつも綺麗な図書館が今日は何故か本がぐちゃぐちゃだ...\n何でこんなことになったんだろう",
     answer: "へいこう",
     hint1: "数字順に並べてみよう。下に出てくるひらがなにはなんて書いてあるかな",
     hint2: "1番左上から斜めに呼んでみよう"
@@ -66,17 +66,18 @@ const QUESTIONS = [
   },
   {
     title: "七不思議？",
-    problem: "ここまでの問題、何故か妙に引っかかるんだよなぁ...なんでだろう...これが七不思議なのかな？\nそれぞれの場所に貼ってあったあの数字の紙が何か手掛かりに繋がるのかな？",
+    problem: "ここまでの問題、何故か妙に引っかかるんだよなぁ...なんでだろう...これが七不思議なのかな？\nそれぞれの場所に貼ってあったあの数字の紙が何か手掛かりに繋がるかも！",
     answer: "だいにそうこ",
     hint1: "今までの問題の答えってなんだっけ...？",
-    hint2: "答えと数字...1問目の答えから考えていくとよさそう"
+    hint2: "答えと数字...1問目の答えから順に考えていくとよさそう",
+    clearMessage: "ここまでよく辿り着いたね！\n次は、今までの問題を踏まえた最終問題だ\nさぁ、第二倉庫へ行こう！"
   },
   {
     title: "七不思議の正体は？",
     problem: "七不思議の正体は一体なんだろうか？",
     answer: "あなた",
     hint1: "このマスの大きさとマーク、どこかで見た気がするんだよなぁ",
-    hint2: "さっきの理科室の標本の裏に何か模様が書いてあるぞ..."
+    hint2: "さっきの理科室の標本の裏に何か言葉が書いてあるぞ..."
   }
 ];
 
@@ -85,7 +86,8 @@ const QUESTIONS = [
 // ==========================================
 
 const HIDDEN_UNTIL_UNLOCKED_FROM = 6;
-const HINT_INTERVAL = 45;
+const HINT1_DELAY = 30;
+const HINT2_DELAY = 75;
 const FREE_COUNT = 6;
 const LAST_INDEX = QUESTIONS.length - 1;
 
@@ -475,11 +477,11 @@ function renderQuestion() {
 // ==========================================
 
 function getRevealedHintCount(seconds) {
-  if (seconds >= HINT_INTERVAL * 2) {
+  if (seconds >= HINT2_DELAY) {
     return 2;
   }
 
-  if (seconds >= HINT_INTERVAL) {
+  if (seconds >= HINT1_DELAY) {
     return 1;
   }
 
@@ -546,7 +548,7 @@ function updateHintArea(announce) {
 
       if (index === revealed) {
         const remain =
-          HINT_INTERVAL * (index + 1) - seconds;
+          (index === 0 ? HINT1_DELAY : HINT2_DELAY) - seconds;
 
         note = `あと ${remain} 秒で公開`;
       } else {
@@ -628,58 +630,58 @@ function checkAnswer() {
   // 最終問題：1回のみ
   // ========================================
 
-if (currentQuestion === LAST_INDEX) {
-  const ok =
-    normalizeAnswer(userAnswer) ===
-    normalizeAnswer(QUESTIONS[LAST_INDEX].answer);
+  if (currentQuestion === LAST_INDEX) {
+    const ok =
+      normalizeAnswer(userAnswer) ===
+      normalizeAnswer(QUESTIONS[LAST_INDEX].answer);
 
-  const confirmed = window.confirm(
-    "この問題は1回しか解答できません。\nこの答えで確定しますか?"
-  );
+    const confirmed = window.confirm(
+      "この問題は1回しか解答できません。\nこの答えで確定しますか?"
+    );
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  state.answers[LAST_INDEX] = userAnswer;
-  state.solved[LAST_INDEX] = ok;
-  state.finalResult = ok ? "correct" : "wrong";
+    state.answers[LAST_INDEX] = userAnswer;
+    state.solved[LAST_INDEX] = ok;
+    state.finalResult = ok ? "correct" : "wrong";
 
-  saveState();
+    saveState();
 
-  input.disabled = true;
-  button.disabled = true;
+    input.disabled = true;
+    button.disabled = true;
 
-  // 判定中の演出
-  const overlay = document.createElement("div");
-  overlay.className = "final-judging-overlay";
+    // 判定中の演出
+    const overlay = document.createElement("div");
+    overlay.className = "final-judging-overlay";
 
-  overlay.innerHTML = `
-    <div class="final-judging-box">
-      <div class="final-judging-label">FINAL ANSWER</div>
-      <div class="final-judging-text">
-        判定中<span id="judgingDots"></span>
+    overlay.innerHTML = `
+      <div class="final-judging-box">
+        <div class="final-judging-label">FINAL ANSWER</div>
+        <div class="final-judging-text">
+          判定中<span id="judgingDots"></span>
+        </div>
       </div>
-    </div>
-  `;
+    `;
 
-  document.body.appendChild(overlay);
+    document.body.appendChild(overlay);
 
-  const dots = document.getElementById("judgingDots");
-  let count = 0;
+    const dots = document.getElementById("judgingDots");
+    let count = 0;
 
-  const dotTimer = setInterval(() => {
-    count = (count % 3) + 1;
-    dots.textContent = "・".repeat(count);
-  }, 400);
+    const dotTimer = setInterval(() => {
+      count = (count % 3) + 1;
+      dots.textContent = "・".repeat(count);
+    }, 400);
 
-  // 約2秒後に結果を表示
-  setTimeout(() => {
-    clearInterval(dotTimer);
-    overlay.remove();
-    showFinalResult();
-  }, 2000);
+    // 約2秒後に結果を表示
+    setTimeout(() => {
+      clearInterval(dotTimer);
+      overlay.remove();
+      showFinalResult();
+    }, 2000);
 
-  return;
-}
+    return;
+  }
 
   // ========================================
   // 通常問題
