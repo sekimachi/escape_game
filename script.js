@@ -9,7 +9,7 @@
  * 第8問：第7問の正解後に解放
  *
  * ヒント①：30秒後
- * ヒント②：75秒後（ヒント①から45秒後）
+ * ヒント②：75秒後
  *
  * 第7問クリア後：
  * ロック解除演出 → 第二倉庫への案内
@@ -363,9 +363,18 @@ function renderQuestion() {
     </div>
 
     <section class="question-card">
+
+      <!-- 問題文 -->
       <p class="problem">
         ${escapeHtml(question.problem)}
       </p>
+
+      <!-- ヒント欄：問題文の下 -->
+      ${
+        solved
+          ? ""
+          : `<div id="hintArea" class="hint-area"></div>`
+      }
 
       ${
         currentQuestion === LAST_INDEX
@@ -379,6 +388,7 @@ function renderQuestion() {
           : ""
       }
 
+      <!-- 解答欄 -->
       <div class="answer-area">
 
         <div class="answer-length">
@@ -427,11 +437,6 @@ function renderQuestion() {
         }
       </div>
 
-      ${
-        solved
-          ? ""
-          : `<div id="hintArea" class="hint-area"></div>`
-      }
     </section>
   `;
 
@@ -850,7 +855,8 @@ function showFinalMessage(onContinue) {
 
       <p class="story-popup-text">
         ここまでよく辿り着いたね！<br>
-        最終問題を解くために第二倉庫へ行こう！
+        次は、今までの問題を踏まえた最終問題だ<br>
+        さぁ、第二倉庫へ行こう！
       </p>
 
       <button
@@ -1102,7 +1108,7 @@ document
     state = createInitialState();
     currentQuestion = 0;
     currentPage = "question";
-    remainingSeconds = 12 * 60;
+    remainingSeconds = 16 * 60;
     updateGameTimer();
     localStorage.removeItem(STORAGE_KEY);
 
