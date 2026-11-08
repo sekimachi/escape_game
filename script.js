@@ -98,7 +98,7 @@ let currentPage = "question";
 let currentQuestion = state.currentQuestion || 0;
 
 let gameTimerInterval = null;
-let remainingSeconds = 16 * 60;
+let remainingSeconds = 14 * 60;
 let toastTimer = null;
 
 // ==========================================
